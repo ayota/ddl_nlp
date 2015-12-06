@@ -3,7 +3,7 @@ Repo for DDL research lab project.
 
 # Usage:
 
-## To get data from wikipedia:
+### To get data from wikipedia (optional):
 
 From fun_3000/ do:
 
@@ -17,7 +17,7 @@ Optionally, you can specifiy a directory name where the data will be stored (by 
 python ingestion/wikipedia_ingest.py -s search_term -d data_dir
 ```
 
-## To create a model:
+### To create a model:
 
 From fun_3000/ do:
 
