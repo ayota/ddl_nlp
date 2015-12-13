@@ -26,11 +26,11 @@ python fun_3000/word2vec_starter.py -c data_dir
 The script will store all data files within data/*data_dir*/ and build a Word2Vec model from them.
 The model will be saved under models/*data_dir*/ for future use.
 
-## Example using Wikipedia data:
+# Example using Wikipedia data:
 
 Let's say you wanted to train a Word2Vec model with the "Jazz" wikipedia page as your corpus:
 
-# Step 1: Retrieve wikipedia page content
+### Step 1: Retrieve wikipedia page content
 
 ```
 python fun_3000/ingestion/wikipedia_ingest.py -s 'jazz'
@@ -38,14 +38,14 @@ python fun_3000/ingestion/wikipedia_ingest.py -s 'jazz'
 
 Confirm that the text content was downloaded and stored under data/jazz/model_data.txt
 
-# Step 2: Create a Word2Vec model
+### Step 2: Create a Word2Vec model
 
 ```
 python fun_3000/word2vec_starter.py -c jazz
 ```
 Confirm that the model was created and saved under models/jazz/jazz.model
 
-# Step 3: Explore the model
+### Step 3: Explore the model
 
 Within a python REPL:
 
