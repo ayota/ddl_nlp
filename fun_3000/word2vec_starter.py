@@ -35,17 +35,8 @@ def timeit(method):
 def train_model(corpus, parallel_workers):
     return gensim.models.Word2Vec(corpus, workers=parallel_workers)
 
-def main():
-    parser = optparse.OptionParser()
-    parser.add_option('-c', '--cached', dest='cached_corpus_dir', default='generic', help='Specify locally cached corpus directory')
-    parser.add_option('-p', '--parallel_workers', dest='parallel_workers', default=1, help='Specify the number of parallel threads', type='int')
-    (opts, args) = parser.parse_args()
-
-    cached_corpus_dir = opts.cached_corpus_dir
-    parallel_workers = opts.parallel_workers
-
-    local_data_file = 'model_data.txt'
-
+def run_model(cached_corpus_dir, parallel_workers, local_data_file='model_data.txt'):
+    
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -65,4 +56,11 @@ def main():
     model.save(model_path)
 
 if __name__ == '__main__':
-    main()
+
+    parser = optparse.OptionParser()
+    parser.add_option('-c', '--cached', dest='cached_corpus_dir', default='generic', help='Specify locally cached corpus directory')
+    parser.add_option('-p', '--parallel_workers', dest='parallel_workers', default=1, help='Specify the number of parallel threads', type='int')
+    (opts, args) = parser.parse_args()
+
+    run_model(opts.cached_corpus_dir, opts.parallel_workers)
+ 
