@@ -29,11 +29,7 @@ def timeit(method):
 
     return timed
 
-@timeit
-def train_model(corpus, parallel_workers=4):
-    return gensim.models.Word2Vec(corpus, workers=parallel_workers)
-
-def run_model(input_data_dir, parallel_workers=4, model_name=None):
+def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
     
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
@@ -48,7 +44,7 @@ def run_model(input_data_dir, parallel_workers=4, model_name=None):
         makedirs(this_model_dir)
   
     corpus = MySentences(model_data_dir)
-    model = train_model(corpus, parallel_workers)
+    model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
     if model_name is None:    
         model_path = this_model_dir + '/' + input_data_dir +'.model'
@@ -62,11 +58,13 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-i', '--input_data_dir', dest='input_data_dir', default='generic', help='Specify local corpus directory')
     parser.add_option('-p', '--parallel_workers', dest='parallel_workers', default=1, help='Specify the number of parallel threads', type='int')
+    parser.add_option('-w', '--window_size', dest='context_window', default=5, help='Specify the context window size', type='int')
+    parser.add_option('-h', '--hidden_layer_size', dest='hidden_layer', default=100, help='Specify the hidden layer size', type='int')
     parser.add_option('-o', '--output_model_name', dest='model_name', default=None, help='Specify a name for your model. If not specified, the data directory name will be used.')
     (opts, args) = parser.parse_args()
 
     if opts.model_name is not None:
-        run_model(opts.input_data_dir, opts.parallel_workers, opts.model_name)    
+        run_model(opts.input_data_dir, opts.parallel_workers, opts.context_window, opts.hidden_layer, opts.model_name)    
     else:
-        run_model(opts.input_data_dir, opts.parallel_workers)
+        run_model(opts.input_data_dir, opts.parallel_workers, opts.context_window, opts.hidden_layer)
  

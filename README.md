@@ -20,7 +20,7 @@ python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 
 
 ```
-python fun_3000/word2vec_starter.py -c data_dir
+python fun_3000/word2vec.py -i data_dir
 ```
 
 The script will store all data files within data/*data_dir*/ and build a Word2Vec model from them.
@@ -41,9 +41,16 @@ Confirm that the text content was downloaded and stored under data/jazz/model_da
 ### Step 2: Create a Word2Vec model
 
 ```
-python fun_3000/word2vec_starter.py -c jazz
+python fun_3000/word2vec.py -i jazz
 ```
 Confirm that the model was created and saved under models/jazz/jazz.model
+
+Alternatively, you can specify a number of optional parameters for model creation
+```
+python fun_3000/word2vec.py -i jazz -w 10 -h 100 -o jazz_model_2 -p 4
+```
+The above calls for using the 'jazz' corpus for input, a context window of size 10, a hidden layer of size 100 and 4 parallel workers. It also specifies that we shall name the output model as 'jazz_model_2.model' (this helps when you're iterating with different parameter configurations over the same input
+corpus).
 
 ### Step 3: Explore the model
 
