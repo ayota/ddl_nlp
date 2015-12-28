@@ -1,0 +1,16 @@
+; Configuration Settings
+PARALLEL_THREADS=4
+HIDDEN_LAYER_SIZE=100
+
+INPUT_DATA_DIR=jazz
+OUTPUT_MODEL_NAME=jazz_1
+
+; Don't change this
+FUN_3000_DIR=fun_3000
+
+workflow/00.model.complete <- data/$[INPUT_DATA_DIR]/workflow.start [shell]
+    mkdir -p workflow/
+    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[OUTPUT_MODEL_NAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
+
+workflow/01.evaluate.complete <- workflow/00.model.complete [shell]
+    echo 'Evaluation complete.' && touch $OUTPUT
