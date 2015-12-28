@@ -1,7 +1,7 @@
 # ddl_nlp
 Repo for DDL research lab project.
 
-# Usage:
+# Usage
 
 ### To get data from wikipedia (optional):
 
@@ -33,7 +33,7 @@ python fun_3000/word2vec.py -h
 ```
 
 
-# Example using Wikipedia data:
+# Example using Wikipedia data
 
 Let's say you wanted to train a Word2Vec model with the "Jazz" wikipedia page as your corpus:
 
@@ -44,6 +44,8 @@ python fun_3000/ingestion/wikipedia_ingest.py -s 'jazz'
 ```
 
 Confirm that the text content was downloaded and stored under data/jazz/model_data.txt
+
+(Alternatively: you can manually create a directory under data/ and placing all corpus files within it)
 
 ### Step 2: Create a Word2Vec model
 
@@ -65,3 +67,27 @@ Within a python REPL:
 
 #Workflow
 We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
+
+# Running a pipeline with Drake
+
+Requirement: Make sure Drake is installed. See [here](https://github.com/Factual/drake) for installation instructions.
+
+### Step 1: Configuration
+
+Place a blank file named workflow.start in whichever data directory you want to use for the pipeline run. (IMPORTANT: if you end up changing your corpus file(s), you'll need to remove the workflow.start file and recreate it)
+
+Open the file named Drakefile and change any of the configuration settings at the top of the file. They correspond to the same options that the word2vec.py script supports.
+
+### Step 2: Execution
+
+All you need to do is run the following from the main directory:
+
+```
+drake -w Drakefile
+```
+
+Review the steps and enter 'y' to accept them.
+
+### Post-Execution
+
+Drake will create a workflow/ directory to store some progress files and track step completion. If you wish to re-start the pipeline from a particular step, delete the corresponding .complete file from the workflow/ directory.
