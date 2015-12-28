@@ -59,7 +59,7 @@ if __name__ == '__main__':
     parser.add_option('-i', '--input_data_dir', dest='input_data_dir', default='generic', help='Specify local corpus directory')
     parser.add_option('-p', '--parallel_workers', dest='parallel_workers', default=1, help='Specify the number of parallel threads', type='int')
     parser.add_option('-w', '--window_size', dest='context_window', default=5, help='Specify the context window size', type='int')
-    parser.add_option('-h', '--hidden_layer_size', dest='hidden_layer', default=100, help='Specify the hidden layer size', type='int')
+    parser.add_option('-l', '--hidden_layer_size', dest='hidden_layer', default=100, help='Specify the hidden layer size', type='int')
     parser.add_option('-o', '--output_model_name', dest='model_name', default=None, help='Specify a name for your model. If not specified, the data directory name will be used.')
     (opts, args) = parser.parse_args()
 
