@@ -30,7 +30,15 @@ def timeit(method):
     return timed
 
 def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
-    
+    '''
+    Build a word2vec model of the provided corpus.
+    :param input_data_dir:
+    :param parallel_workers:
+    :param hidden_layer:
+    :param context_window:
+    :param model_name:
+    :return:
+    '''
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -42,7 +50,7 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     this_model_dir = path.join(models_dir, input_data_dir)
     if not path.exists(this_model_dir):
         makedirs(this_model_dir)
-  
+
     corpus = MySentences(model_data_dir)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 

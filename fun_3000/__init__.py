@@ -1,1 +1,1 @@
-import word2vec
+from fun_3000 import word2vec
