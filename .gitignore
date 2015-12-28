@@ -1,1 +1,13 @@
 .DS_Store
+
+*.txt
+*.csv
+*.pyc
+
+*.model*
+
+data/*
+workflow/*
+
+.drake/
+drake.log
