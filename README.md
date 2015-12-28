@@ -23,7 +23,7 @@ python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 python fun_3000/word2vec.py -i data_dir
 ```
 
-The script will load all data files within data/*data_dir*/ and build a Word2Vec model from them.
+The script will use all data files within data/*data_dir*/ and build a Word2Vec model from them.
 The model will be saved under models/*data_dir*/ for future use.
 
 You can specify additional options, such as the number of parallel execution threads, the size of the hidden layer and the output model name. For script usage information, run:
