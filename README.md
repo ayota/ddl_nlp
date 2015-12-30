@@ -16,6 +16,40 @@ Optionally, you can specifiy a directory name where the data will be stored (by 
 python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 ```
 
+### To generate data-folds
+
+You can generate a folder structure that will contain prepared training and test sets for k number of folds.
+
+The folder structure follows the following pattern
+
+data
+--<data_dir>
+--corpus_filename.txt
+--ontology_filename.txt
+----1
+------train
+--------train.txt
+------test
+--------test.txt
+----2
+------train
+--------train.txt
+------test
+--------test.txt
+etc.
+
+To generate the proper files and folder structure do the following:
+
+```
+python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -c 'corpus.txt' -o 'ontology.txt' -s 10
+```
+where: 
+k is the number of folds you want to generate
+c is the corpus filename
+o is the ontology filename for teh ontology data as a string
+d is the data folder
+s is teh random seed
+
 ### To create a model:
 
 

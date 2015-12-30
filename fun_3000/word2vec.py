@@ -54,7 +54,7 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     corpus = MySentences(model_data_dir)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
-    if model_name is None:    
+    if model_name is None:
         model_path = this_model_dir + '/' + input_data_dir +'.model'
     else:
         model_path = this_model_dir + '/' + model_name + '.model'
@@ -75,4 +75,3 @@ if __name__ == '__main__':
         run_model(opts.input_data_dir, opts.parallel_workers, opts.context_window, opts.hidden_layer, opts.model_name)    
     else:
         run_model(opts.input_data_dir, opts.parallel_workers, opts.context_window, opts.hidden_layer)
- 
