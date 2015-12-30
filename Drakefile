@@ -23,7 +23,7 @@ workflow/01.generate_folds.complete <- workflow/00.ingest.complete [shell]
 
 ; Run Gensim
 workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
-    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[INPUT_DATA_DIR] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
+    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR]/1/train -o $[INPUT_DATA_DIR]/1/train -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
-workflow/01.evaluate.complete <- workflow/00.model.complete [shell]
+workflow/01.evaluate.complete <- workflow/02.model.complete [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
