@@ -21,6 +21,7 @@ python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 You can generate a folder structure that will contain prepared training and test sets for k number of folds.
 
 The folder structure follows the following pattern
+```
 .
 +-- <data_dir>
 |   +--corpus_filename.txt
@@ -35,6 +36,7 @@ The folder structure follows the following pattern
 |   +--|   +--|   +--train.txt
 |   +--|   +--test
 |   +--|   +--|   +--test.txt
+```
 etc.
 
 To generate the proper files and folder structure do the following:
