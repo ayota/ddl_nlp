@@ -37,7 +37,7 @@ The folder structure follows the following pattern
 |   +--|   +--test
 |   +--|   +--|   +--test.txt
 ```
-etc.
+In the example above only 2 folds were generated.
 
 To generate the proper files and folder structure do the following:
 
@@ -53,12 +53,13 @@ s is teh random seed
 
 ### To create a model:
 
-
 ```
 python fun_3000/word2vec.py -i data_dir
 ```
 
-The script will use all data files within data/*data_dir*/ and build a Word2Vec model from them.
+The script will use all data files within data/*data_dir*/ and build a Word2Vec model from them.  In the example above 
+the data_dir might be = '<data_dir>/1/train'
+
 The model will be saved under models/*data_dir*/ for future use.
 
 You can specify additional options, such as the number of parallel execution threads, the size of the hidden layer and the output model name. For script usage information, run:
