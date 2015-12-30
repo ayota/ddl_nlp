@@ -1,16 +1,29 @@
 ; Configuration Settings
 PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
-
 INPUT_DATA_DIR=jazz
+CORPUS_FILENAME=model_data.txt
+ONTOLOGY_FILENAME=model_data.txt
+FOLDS=3
+SEED=10
+
 OUTPUT_MODEL_NAME=jazz_1
 
-; Don't change this
+; Don't change this EV..ER
 FUN_3000_DIR=fun_3000
 
-workflow/00.model.complete <- data/$[INPUT_DATA_DIR]/workflow.start [shell]
+; Run ingestion on the search term using the wiki search
+workflow/00.ingest.complete <- data/$[INPUT_DATA_DIR]/workflow.start [shell]
     mkdir -p workflow/
-    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[OUTPUT_MODEL_NAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
+    python $[FUN_3000_DIR]/ingestion/wikipedia_ingest.py -s $[INPUT_DATA_DIR]
+
+; Generate folds for the data and the proper file structure.
+workflow/01.generate_folds.complete <- workflow/00.ingest.complete [shell]
+    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -c $[CORPUS_FILENAME] -o $[ONTOLOGY_FILENAME] -s $[SEED]
+
+; Run Gensim
+workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
+    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[INPUT_DATA_DIR] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
 workflow/01.evaluate.complete <- workflow/00.model.complete [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
