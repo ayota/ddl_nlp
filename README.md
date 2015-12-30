@@ -23,19 +23,19 @@ You can generate a folder structure that will contain prepared training and test
 The folder structure follows the following pattern
 
 data
---<data_dir>
---corpus_filename.txt
---ontology_filename.txt
-----1
-------train
---------train.txt
-------test
---------test.txt
-----2
-------train
---------train.txt
-------test
---------test.txt
++-- <data_dir>
+|   +--corpus_filename.txt
+|   +--ontology_filename.txt
+|   +--1
+|   +--|   +--train
+|   +--|   +--|   +--train.txt
+|   +--|   +--test
+|   +--|   +--|   +--test.txt
+|   +--2
+|   +--|   +--train
+|   +--|   +--|   +--train.txt
+|   +--|   +--test
+|   +--|   +--|   +--test.txt
 etc.
 
 To generate the proper files and folder structure do the following:
