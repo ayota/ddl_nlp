@@ -129,20 +129,23 @@ def read_inputs(input_data_dir, corpus_filename, ontology_filename):
     with open(corpus_filename,'rb') as infile:
         corpus = infile.read()
 
-    with open(ontology_filename,'rb') as infile:
-        ontology = infile.read()
+    # See if there is an ontology file specified, if not, then print to console and move on
+    try:
+        with open(ontology_filename,'rb') as infile:
+            ontology = infile.read()
+    except:
+        print 'No ontology file specified; no ontology will be appended to corpus.'
+        ontology = None
 
     return corpus, ontology
 
 
-def run(input_data_dir, corpus_filename, ontology_filename=None, k=3, seed=10):
+def run(input_data_dir, corpus_filename, ontology_filename='', k=5, seed=10):
     corpus, ontology = read_inputs(input_data_dir, corpus_filename, ontology_filename)
-    corpus_split=generate_word2vec_folds(corpus=corpus, folds=3)
+    corpus_split=generate_word2vec_folds(corpus=corpus, folds=k)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
     store_file(folds_dict=final_splits, input_data_dir=input_data_dir)
-
-run(input_data_dir='dog', corpus_filename='model_data.txt', ontology_filename='model_data.txt')
 
 if __name__ == '__main__':
 
