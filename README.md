@@ -45,11 +45,16 @@ To generate the proper files and folder structure do the following:
 python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -c 'corpus.txt' -o 'ontology.txt' -s 10
 ```
 where: 
-k is the number of folds you want to generate
-c is the corpus filename
-o is the ontology filename for teh ontology data as a string
-d is the data folder
-s is teh random seed
+
+* k is the number of folds you want to generate
+
+* c is the corpus filename
+
+* o is the ontology filename for the ontology data as a string (optional)
+
+* d is the data folder
+
+* s is the random seed
 
 ### To create a model:
 
@@ -67,7 +72,7 @@ You can specify additional options, such as the number of parallel execution thr
 ```
 python fun_3000/word2vec.py -h
 ```
-
+*Note*: if no model name is specified, output name will be <data_dir>_1_train.model (using the example above).
 
 # Example using Wikipedia data
 

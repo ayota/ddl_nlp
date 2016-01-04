@@ -55,7 +55,9 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
     if model_name is None:
-        model_path = this_model_dir + '/' + input_data_dir +'.model'
+        # Replace / with _ to prevent creation of unecessary directories, because this expects the fold structure
+        filename = input_data_dir.replace('/', '_')
+        model_path = this_model_dir + '/' + filename +'.model'
     else:
         model_path = this_model_dir + '/' + model_name + '.model'
 
