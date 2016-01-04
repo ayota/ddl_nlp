@@ -41,7 +41,6 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     '''
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
-    print current_dir
     parent_dir = path.abspath(path.join(current_dir, pardir))
     
     data_dir = path.join(parent_dir, 'data')
