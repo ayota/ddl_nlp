@@ -22,22 +22,22 @@ workflow/01.generate_folds.complete <- workflow/00.ingest.complete [shell]
     python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -c $[CORPUS_FILENAME] -o $[ONTOLOGY_FILENAME] -s $[SEED]
 
 ; Run Gensim for FOLD 1
-workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
+workflow/02.model.complete.1 <- workflow/01.generate_folds.complete [shell]
     python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR]/1/train -o $[INPUT_DATA_DIR]/1/train -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
-workflow/01.evaluate.complete <- workflow/02.model.complete [shell]
+workflow/01.evaluate.complete.1 <- workflow/02.model.complete.1 [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
 
 ; Run Gensim for FOLD 2
-workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
+workflow/02.model.complete.2 <- workflow/01.generate_folds.complete [shell]
     python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR]/2/train -o $[INPUT_DATA_DIR]/2/train -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
-workflow/01.evaluate.complete <- workflow/02.model.complete [shell]
+workflow/01.evaluate.complete.2 <- workflow/02.model.complete.2 [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
 
 ; Run Gensim for FOLD 3
-workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
+workflow/02.model.complete.3 <- workflow/01.generate_folds.complete [shell]
     python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR]/3/train -o $[INPUT_DATA_DIR]/3/train -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
-workflow/01.evaluate.complete <- workflow/02.model.complete [shell]
+workflow/01.evaluate.complete.3 <- workflow/02.model.complete.3 [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
