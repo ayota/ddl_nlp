@@ -16,14 +16,55 @@ Optionally, you can specifiy a directory name where the data will be stored (by 
 python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 ```
 
-### To create a model:
+### To generate data-folds
 
+You can generate a folder structure that will contain prepared training and test sets for k number of folds.
+
+The folder structure follows the following pattern
+```
+.
++-- <data_dir>
+|   +--corpus_filename.txt
+|   +--ontology_filename.txt
+|   +--1
+|   +--|   +--train
+|   +--|   +--|   +--train.txt
+|   +--|   +--test
+|   +--|   +--|   +--test.txt
+|   +--2
+|   +--|   +--train
+|   +--|   +--|   +--train.txt
+|   +--|   +--test
+|   +--|   +--|   +--test.txt
+```
+In the example above only 2 folds were generated.
+
+To generate the proper files and folder structure do the following:
+
+```
+python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -c 'corpus.txt' -o 'ontology.txt' -s 10
+```
+where: 
+
+* k is the number of folds you want to generate
+
+* c is the corpus filename
+
+* o is the ontology filename for the ontology data as a string (optional)
+
+* d is the data folder
+
+* s is the random seed
+
+### To create a model:
 
 ```
 python fun_3000/word2vec.py -i data_dir
 ```
 
-The script will use all data files within data/*data_dir*/ and build a Word2Vec model from them.
+The script will use all data files within data/*data_dir*/ and build a Word2Vec model from them.  In the example above 
+the data_dir might be = '<data_dir>/1/train'
+
 The model will be saved under models/*data_dir*/ for future use.
 
 You can specify additional options, such as the number of parallel execution threads, the size of the hidden layer and the output model name. For script usage information, run:
@@ -31,7 +72,7 @@ You can specify additional options, such as the number of parallel execution thr
 ```
 python fun_3000/word2vec.py -h
 ```
-
+*Note*: if no model name is specified, output name will be <data_dir>_1_train.model (using the example above).
 
 # Example using Wikipedia data
 
