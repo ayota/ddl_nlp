@@ -40,7 +40,6 @@ def main():
         makedirs(model_data_dir)
 
     if search_term is not None:
-        logging.info('Searching for Wiki pages...')
         wiki_results = src(search_term, results)
 
         for result in wiki_results:
