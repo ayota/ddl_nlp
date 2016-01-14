@@ -31,7 +31,17 @@ def timeit(method):
     return timed
 
 def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
-
+    """
+    This function runs gensim.models.Word2Vec on all folds for a given input data directory.  Specifically, this wrapper function
+    derives the proper right directories to search for the data-folds and then loops over those locations running ron_model_fold
+    for each.
+    :param input_data_dir: The name of the location where the input data is coming.
+    :param parallel_workers:
+    :param hidden_layer: The number of neurons in the hidden layer of the word2vec model
+    :param context_window: The size of teh context window
+    :param model_name: the name of the model file to be output.  If none then it outputs the input_data_dir as the filename.
+    :return:
+    """
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -46,6 +56,8 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     #get the folder names under the data directory.  Each directory represents a fold and we need to loop through
     model_directory_fold_directories = filter(lambda x: path.isdir(path.join(this_data_dir, x)), listdir(this_data_dir))
 
+    #loop through each of the fold subdirectories providing the folder location for the data each time and the intended
+    # location for the resulting model file to be stored.
     for i in model_directory_fold_directories:
         model_fold_directory=path.join(this_model_dir, i)
         fold_data_directory=path.join(this_data_dir, i)
