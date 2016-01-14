@@ -4,6 +4,7 @@ import gensim
 import optparse
 import logging
 import time
+from os import path, listdir
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -30,6 +31,34 @@ def timeit(method):
     return timed
 
 def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
+
+    # Set data directory
+    current_dir = path.dirname(path.realpath(__file__))
+    parent_dir = path.abspath(path.join(current_dir, pardir))
+
+    data_dir = path.join(parent_dir, 'data')
+    this_data_dir = path.join(data_dir, input_data_dir)
+    models_dir = path.join(parent_dir, 'models')
+    this_model_dir = path.join(models_dir, input_data_dir)
+    if not path.exists(this_model_dir):
+        makedirs(this_model_dir)
+
+    #get the folder names under the data directory.  Each directory represents a fold and we need to loop through
+    model_directory_fold_directories = filter(lambda x: path.isdir(path.join(this_data_dir, x)), listdir(this_data_dir))
+
+    for i in model_directory_fold_directories:
+        model_fold_directory=path.join(this_model_dir, i)
+        fold_data_directory=path.join(this_data_dir, i)
+        fold_model_data_dir = path.join(fold_data_directory, 'train')
+        run_model_fold(input_data_dir=input_data_dir,
+                       model_data_dir=fold_model_data_dir,
+                       this_model_dir=model_fold_directory,
+                       parallel_workers=parallel_workers,
+                       hidden_layer=hidden_layer,
+                       context_window=context_window,
+                       model_name=model_name)
+
+def run_model_fold(input_data_dir, model_data_dir, this_model_dir, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
     '''
     Build a word2vec model of the provided corpus.
     :param input_data_dir:
@@ -39,24 +68,13 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     :param model_name:
     :return:
     '''
-    # Set data directory
-    current_dir = path.dirname(path.realpath(__file__))
-    parent_dir = path.abspath(path.join(current_dir, pardir))
-    
-    data_dir = path.join(parent_dir, 'data')
-    model_data_dir = path.join(data_dir, input_data_dir)
-
-    models_dir = path.join(parent_dir, 'models')
-    this_model_dir = path.join(models_dir, input_data_dir)
-    if not path.exists(this_model_dir):
-        makedirs(this_model_dir)
-
     corpus = MySentences(model_data_dir)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
     if model_name is None:
         # Replace / with _ to prevent creation of unecessary directories, because this expects the fold structure
         filename = input_data_dir.replace('/', '_')
+        logging.info(filename)
         model_path = this_model_dir + '/' + filename +'.model'
     else:
         model_path = this_model_dir + '/' + model_name + '.model'
