@@ -1,16 +1,25 @@
 ; Configuration Settings
 PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
-
-INPUT_DATA_DIR=jazz
-OUTPUT_MODEL_NAME=jazz_1
+INPUT_DATA_DIR=medical_corpus
+SEARCH_RESULTS=5
+OUTPUT_MODEL_NAME=medical_model
 
 ; Don't change this
 FUN_3000_DIR=fun_3000
 
-workflow/00.model.complete <- data/$[INPUT_DATA_DIR]/workflow.start [shell]
+; Start of Steps
+workflow/00.build_corpus.complete <- data/eval_data.txt [shell]
     mkdir -p workflow/
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        search_term=${line// /_}
+        search_term=${line//\//_}
+        python $[FUN_3000_DIR]/ingestion/wikipedia_ingest.py -s $search_term -r $[SEARCH_RESULTS] -d $[INPUT_DATA_DIR]
+    done < $INPUT
+    touch $OUTPUT
+
+workflow/01.model.complete <- workflow/00.build_corpus.complete [shell]
     python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[OUTPUT_MODEL_NAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
 
-workflow/01.evaluate.complete <- workflow/00.model.complete [shell]
+workflow/02.evaluate.complete <- workflow/01.model.complete [shell]
     echo 'Evaluation complete.' && touch $OUTPUT
