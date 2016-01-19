@@ -50,6 +50,7 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     this_data_dir = path.join(data_dir, input_data_dir)
     models_dir = path.join(parent_dir, 'models')
     this_model_dir = path.join(models_dir, input_data_dir)
+    
     if not path.exists(this_model_dir):
         makedirs(this_model_dir)
 
