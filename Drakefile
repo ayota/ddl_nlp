@@ -1,24 +1,35 @@
 ; Configuration Settings
+
+; Gensim Configuration
 PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
-INPUT_DATA_DIR=jazz
-CORPUS_FILENAME=model_data.txt
+
+; Folds Configuration
 ONTOLOGY_FILENAME=model_data.txt
 FOLDS=3
 SEED=10
 
+; General Configuration
+INPUT_DATA_DIR=jazz
+CORPUS_FILENAME=model_data.txt
+SEARCH_RESULTS=5
 OUTPUT_MODEL_NAME=jazz_1
 
 ; Don't change this EV..ER
 FUN_3000_DIR=fun_3000
 
-; Run ingestion on the search term using the wiki search
-workflow/00.ingest.complete <- data/$[INPUT_DATA_DIR]/workflow.start [shell]
+; Start of Steps
+workflow/00.build_corpus.complete <- data/eval_data.txt [shell]
     mkdir -p workflow/
-    python $[FUN_3000_DIR]/ingestion/wikipedia_ingest.py -s $[INPUT_DATA_DIR]
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        search_term=${line// /_}
+        search_term=${line//\//_}
+        python $[FUN_3000_DIR]/ingestion/wikipedia_ingest.py -s $search_term -r $[SEARCH_RESULTS] -d $[INPUT_DATA_DIR]
+    done < $INPUT
+    touch $OUTPUT
 
 ; Generate folds for the data and the proper file structure.
-workflow/01.generate_folds.complete <- workflow/00.ingest.complete [shell]
+workflow/01.generate_folds.complete <- workflow/00.build_corpus.complete [shell]
     python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -c $[CORPUS_FILENAME] -o $[ONTOLOGY_FILENAME] -s $[SEED]
 
 ; Run Gensim for FOLD 1

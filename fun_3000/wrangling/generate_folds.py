@@ -3,6 +3,7 @@ from os import path, makedirs, listdir
 import re
 import numpy as np
 import optparse
+import sys
 
 
 def tokenize_sentences(corpus=None):
@@ -136,13 +137,18 @@ def read_source(input_data_dir, source_type='corpus'):
     # Below grabs all of the files in the current model directory and builds a single string corpus out of them.  This
     # avoids the sub-directories if they exist.
     input_data = ''
-    for some_corpus_file in listdir(this_model_dir):
-        if path.isfile(path.join(this_model_dir, some_corpus_file)):
-            with open(path.join(this_model_dir, some_corpus_file),'rb') as infile:
-                new_file_data = infile.read()
-                input_data = ''.join((input_data, new_file_data))
+    if path.exists(this_model_dir):
+        for some_corpus_file in listdir(this_model_dir):
+            if path.isfile(path.join(this_model_dir, some_corpus_file)):
+                with open(path.join(this_model_dir, some_corpus_file),'rb') as infile:
+                    new_file_data = infile.read()
+                    input_data = ''.join((input_data, new_file_data))
 
-    return input_data
+        return input_data
+
+    else:
+        print 'Could not find the data/ontology directory: ', this_model_dir
+        sys.exit(0)
 
 
 def run(input_data_dir, ontology_flag=False, k=5, seed=10):

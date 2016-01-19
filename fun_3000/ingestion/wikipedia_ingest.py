@@ -1,4 +1,4 @@
-from wikipedia import page as wpg
+from wikipedia import page as wpg, search as src
 from os import path, pardir, makedirs
 
 import logging
@@ -19,10 +19,12 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option('-s', '--search_term', dest='search_term', default=None, type='string', help='Specify the wikipedia search term (Default is "Disease")')
     parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name for saving search data')
+    parser.add_option('-r', '--results', dest='results', default=1, help='Specify the number of search results to be returned by Wikipedia')
     (opts, args) = parser.parse_args()
 
     search_term = opts.search_term
     data_directory = opts.data_directory
+    results = opts.results
 
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -38,9 +40,12 @@ def main():
         makedirs(model_data_dir)
 
     if search_term is not None:
-        logging.info('Retrieving "%s" page from Wikipedia.' % (search_term))
-        local_file_path = model_data_dir + '/model_data.txt'
-        save_wiki_text(search_term, local_file_path)
+        wiki_results = src(search_term, results)
+
+        for result in wiki_results:
+            logging.info('Retrieving "%s" page from Wikipedia.' % (result))
+            local_file_path = model_data_dir + '/' + result.replace('/', '_') + '.txt'
+            save_wiki_text(search_term, local_file_path)
     else:
         logging.info('You have not specified a search term!')
 
