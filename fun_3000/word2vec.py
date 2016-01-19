@@ -83,6 +83,9 @@ def run_model_fold(input_data_dir, model_data_dir, this_model_dir, parallel_work
     corpus = MySentences(model_data_dir)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
+    if not path.exists(this_model_dir):
+        makedirs(this_model_dir)
+
     if model_name is None:
         # Replace / with _ to prevent creation of unecessary directories, because this expects the fold structure
         filename = input_data_dir.replace('/', '_')
