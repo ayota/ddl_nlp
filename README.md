@@ -25,7 +25,7 @@ The folder structure follows the following pattern UNDER the data directory
 .
 +-- jazz
 |   +--corpus_filename_1.txt
-|   +--ontology_filename_1.txt
+|   +--corpus_filename_2.txt
 |   +--1
 |   +--|   +--train
 |   +--|   +--|   +--train.txt
