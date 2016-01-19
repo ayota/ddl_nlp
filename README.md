@@ -20,12 +20,12 @@ python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 
 You can generate a folder structure that will contain prepared training and test sets for k number of folds.
 
-The folder structure follows the following pattern
+The folder structure follows the following pattern UNDER the data directory
 ```
 .
-+-- <data_dir>
-|   +--corpus_filename.txt
-|   +--ontology_filename.txt
++-- jazz
+|   +--corpus_filename_1.txt
+|   +--ontology_filename_1.txt
 |   +--1
 |   +--|   +--train
 |   +--|   +--|   +--train.txt
@@ -37,20 +37,25 @@ The folder structure follows the following pattern
 |   +--|   +--test
 |   +--|   +--|   +--test.txt
 ```
+The script also expects ontology generated files to exist in a SISTER (to data) 'ontology' folder like the example below
+```
++-- jazz
+|   +--ontology_filename_1.txt
+|   +--ontology_filename_2.txt
+```
+
 In the example above only 2 folds were generated.
 
 To generate the proper files and folder structure do the following:
 
 ```
-python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -c 'corpus.txt' -o 'ontology.txt' -s 10
+python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -o True -s 10
 ```
 where: 
 
 * k is the number of folds you want to generate
 
-* c is the corpus filename
-
-* o is the ontology filename for the ontology data as a string (optional)
+* o if we are including an ontology in this run this should be true.
 
 * d is the data folder
 

@@ -1,5 +1,5 @@
 from sklearn.cross_validation import KFold
-from os import path, makedirs
+from os import path, makedirs, listdir
 import re
 import numpy as np
 import optparse
@@ -115,33 +115,50 @@ def store_file(folds_dict, input_data_dir):
 
         fold_number += 1
 
-def read_inputs(input_data_dir, corpus_filename, ontology_filename):
+def read_source(input_data_dir, source_type='corpus'):
+    """
+    Reads a set of source files in an input_data_dir and generates a single string from those input files.
+    :param input_data_dir: The subject name of the test. For example 'jazz' or 'medical', etc.
+    :param source_type: Either 'corpus' or 'ontology'.
+    :return:
+    """
     # Set data directory
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, '../..'))
 
-    data_dir = path.join(parent_dir, 'data')
+    if source_type == 'corpus':
+        data_dir = path.join(parent_dir, 'data')
+    else:
+        data_dir = path.join(parent_dir, 'ontology')
 
     this_model_dir = path.join(data_dir, input_data_dir)
-    corpus_filename = path.join(this_model_dir, corpus_filename)
-    ontology_filename = path.join(this_model_dir, ontology_filename)
 
-    with open(corpus_filename,'rb') as infile:
-        corpus = infile.read()
+    # Below grabs all of the files in the current model directory and builds a single string corpus out of them.  This
+    # avoids the sub-directories if they exist.
+    input_data = ''
+    for some_corpus_file in listdir(this_model_dir):
+        if path.isfile(path.join(this_model_dir, some_corpus_file)):
+            with open(path.join(this_model_dir, some_corpus_file),'rb') as infile:
+                new_file_data = infile.read()
+                input_data = ''.join((input_data, new_file_data))
 
-    # See if there is an ontology file specified, if not, then print to console and move on
-    try:
-        with open(ontology_filename,'rb') as infile:
-            ontology = infile.read()
-    except:
-        print 'No ontology file specified; no ontology will be appended to corpus.'
-        ontology = None
-
-    return corpus, ontology
+    return input_data
 
 
-def run(input_data_dir, corpus_filename, ontology_filename='', k=5, seed=10):
-    corpus, ontology = read_inputs(input_data_dir, corpus_filename, ontology_filename)
+def run(input_data_dir, ontology_flag=False, k=5, seed=10):
+    """
+    Pulls the corpus and ontology if provided and builds k folds for test and train into the data directory.
+    :param input_data_dir:
+    :param ontology_flag: If True then we are including an ontology.
+    :param k: Number of folds
+    :param seed: Any seed number for the split generator for the folds.
+    :return:
+    """
+    corpus = read_source(input_data_dir, source_type='corpus')
+    if ontology_flag == 'True':
+        ontology = read_source(input_data_dir, source_type='ontology')
+    else:
+        ontology = ''
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
@@ -152,9 +169,8 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-d', '--data_dir', dest='input_data_dir', default='', help='Specify data directory')
     parser.add_option('-k', '--folds', dest='k', default=3, help='Specify number of folds requested', type='int')
-    parser.add_option('-c', '--corpus_filename', dest='corpus_filename', default='', help='Specify the location/filename of the corpus text')
-    parser.add_option('-o', '--ontology_filename', dest='ontology_filename', default='', help='Specify the location/filename of the ontology text')
+    parser.add_option('-o', '--ontology_flag', dest='ontology_flag', default=False, help='if True an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
     (opts, args) = parser.parse_args()
 
-    run(opts.input_data_dir, opts.corpus_filename, opts.ontology_filename, opts.k, opts.seed)
+    run(opts.input_data_dir, opts.ontology_flag, opts.k, opts.seed)
