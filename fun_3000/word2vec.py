@@ -50,7 +50,7 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
     this_data_dir = path.join(data_dir, input_data_dir)
     models_dir = path.join(parent_dir, 'models')
     this_model_dir = path.join(models_dir, input_data_dir)
-    
+
     if not path.exists(this_model_dir):
         makedirs(this_model_dir)
 
@@ -59,9 +59,16 @@ def run_model(input_data_dir, parallel_workers=4, hidden_layer=100, context_wind
 
     #loop through each of the fold subdirectories providing the folder location for the data each time and the intended
     # location for the resulting model file to be stored.
-    for i in model_directory_fold_directories:
-        model_fold_directory=path.join(this_model_dir, i)
-        fold_data_directory=path.join(this_data_dir, i)
+    for idx, fold_directory in enumerate(model_directory_fold_directories):
+
+        logging.info('')
+        logging.info('-------------------------')
+        logging.info('Run Word2Vec for fold # %s' % str(idx+1))
+        logging.info('-------------------------')
+        logging.info('')
+
+        model_fold_directory=path.join(this_model_dir, fold_directory)
+        fold_data_directory=path.join(this_data_dir, fold_directory)
         fold_model_data_dir = path.join(fold_data_directory, 'train')
         run_model_fold(input_data_dir=input_data_dir,
                        model_data_dir=fold_model_data_dir,
@@ -81,6 +88,7 @@ def run_model_fold(input_data_dir, model_data_dir, this_model_dir, parallel_work
     :param model_name:
     :return:
     '''
+
     corpus = MySentences(model_data_dir)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 

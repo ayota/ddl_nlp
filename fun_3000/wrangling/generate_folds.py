@@ -161,10 +161,12 @@ def run(input_data_dir, ontology_flag=False, k=5, seed=10):
     :return:
     """
     corpus = read_source(input_data_dir, source_type='corpus')
+    
     if ontology_flag == 'True':
         ontology = read_source(input_data_dir, source_type='ontology')
     else:
         ontology = ''
+
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
