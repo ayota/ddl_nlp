@@ -6,7 +6,6 @@
 
 *.model*
 
-data/*
 workflow/*
 
 .drake/
