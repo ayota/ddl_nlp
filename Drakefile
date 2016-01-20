@@ -5,7 +5,6 @@ PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
 
 ; Folds Configuration
-ONTOLOGY_FILENAME=model_data.txt
 FOLDS=3
 SEED=10
 
@@ -28,7 +27,7 @@ workflow/00.build_corpus.complete <- data/eval_words_short [shell]
 
 ; Generate folds for the data and the proper file structure.
 workflow/01.generate_folds.complete <- workflow/00.build_corpus.complete [shell]
-    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o $[ONTOLOGY_FILENAME] -s $[SEED] && touch $OUTPUT
+    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] && touch $OUTPUT
 
 ; Run Gensim word2vec 
 workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
