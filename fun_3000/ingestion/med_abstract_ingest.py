@@ -9,6 +9,9 @@ import xmltodict
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
+CONFIG_PARSER = SafeConfigParser()
+CONFIG_PARSER.read('ingestion_config.py')
+
 def get_unicode_response(url):
     '''
     Do an HTTP GET, figure out the charset and convert to unicode
@@ -55,15 +58,17 @@ def save_abstract_text(document_id, doc_url, storage_path):
     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
         f_out.write(doc_query_response)
 
-def get_medical_abstracts(search_term, data_directory, results, db_url, doc_url):
+def get_medical_abstracts(search_term, data_directory, results=1):
     '''
     Retrieve a list of abstract texts from a search query
-    :param search_term: the query search term used for looking up the medical abstracts
-    :param data_directory: local directory where abstracts will be saved as text files
+    :param search_term: the query search term used for looking up the medical abstracts e.g. 'virus'
+    :param data_directory: local directory where abstracts will be saved as text files e.g. 'virus'
     :param results: how many abstracts do we want to fetch
-    :param db_url: URL for the online medical database search interface
-    :param doc_url: URL for the online medical database document repository
     '''
+    
+    global CONFIG_PARSER
+    db_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_search_url')
+    doc_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_doc_url')
 
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -104,10 +109,5 @@ if __name__ == '__main__':
     data_directory = opts.data_directory
     results = opts.results
 
-    parser = SafeConfigParser()
-    parser.read('ingestion_config.py')
-    db_url = parser.get('medical_abstracts', 'pubmed_search_url')
-    doc_url = parser.get('medical_abstracts', 'pubmed_doc_url')
-    
-    get_medical_abstracts(search_term, data_directory, results, db_url, doc_url)
+    get_medical_abstracts(search_term, data_directory, results)
 
