@@ -161,10 +161,12 @@ def run(input_data_dir, ontology_flag=False, k=5, seed=10):
     :return:
     """
     corpus = read_source(input_data_dir, source_type='corpus')
+    
     if ontology_flag == 'True':
         ontology = read_source(input_data_dir, source_type='ontology')
     else:
         ontology = ''
+
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
@@ -175,7 +177,7 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-d', '--data_dir', dest='input_data_dir', default='', help='Specify data directory')
     parser.add_option('-k', '--folds', dest='k', default=3, help='Specify number of folds requested', type='int')
-    parser.add_option('-o', '--ontology_flag', dest='ontology_flag', default=False, help='if True an ontology is provided')
+    parser.add_option('-o', '--ontology_flag', action='store_true', dest='ontology_flag', default=False, help='if specified, an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
     (opts, args) = parser.parse_args()
 
