@@ -4,3 +4,4 @@ numpy==1.10.1
 scipy==0.16.1
 requests==2.8.1
 rdflib==4.2.1
+progressbar2==3.6.2
