@@ -26,7 +26,7 @@ def import_terms(filename):
 			
 	return search_terms
 
-def fetch_corpus(search_terms, results):
+def fetch_corpus(search_terms, data_dir, results):
 	'''
 	Runs through list of search terms for wikipedia and abstract ingestion functions
 	:param search_terms: a list of search terms
@@ -39,8 +39,8 @@ def fetch_corpus(search_terms, results):
 	med_search = ingestion.med_abstract_ingest
 
 	for term in search_terms:
-		wiki_search.get_wikipedia_pages(term, term, results)
-		med_search.get_medical_abstracts(term, term, results)
+		wiki_search.get_wikipedia_pages(term, data_dir, results)
+		med_search.get_medical_abstracts(term, data_dir, results)
 
 def fetch_books(directory):
 	'''
@@ -58,13 +58,14 @@ if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option('-s', '--search_file', dest='search_file', default=None, type='string', help='Specify the filename for list of search terms; default is med_terms.csv.')
 	parser.add_option('-r', '--results', dest='results', default=1, type=int, help='Specify the number of search results to be returned by abstract queries.')
-	parser.add_option('-d', '--med_book_dir', dest='med_dir', default='med_texts', help='Specify a directory name for saving medical book data.')
+	parser.add_option('-d', '--directory', dest='directory', default=1, type='string', help='Specify a directory for corpus text and ontology.')
+
 	(opts, args) = parser.parse_args()
 
 	search_file = opts.search_file
 	results = opts.results
-	med_dir = opts.med_dir
+	directory = opts.directory
 
 	search_terms = import_terms(search_file)
-	fetch_corpus(search_terms, results)
-	# fetch_books(med_dir)
+	fetch_corpus(search_terms, directory, results)
+	fetch_books(directory)
