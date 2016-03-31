@@ -1,0 +1,1 @@
+from fun_3000 import word2vec

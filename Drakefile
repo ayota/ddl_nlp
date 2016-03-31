@@ -1,0 +1,38 @@
+; Configuration Settings
+
+; Gensim Configuration
+PARALLEL_THREADS=4
+HIDDEN_LAYER_SIZE=100
+
+; Folds Configuration
+FOLDS=3
+SEED=10
+
+; General Configuration
+INPUT_DATA_DIR=Medicine
+SEARCH_RESULTS=5
+
+; Don't change this EV..ER
+FUN_3000_DIR=fun_3000
+
+; Start of Steps
+workflow/00.build_corpus.complete <- data/eval_words_short [shell]
+    mkdir -p workflow/
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        search_term=${line// /_}
+        search_term=${line//\//_}
+        python $[FUN_3000_DIR]/ingestion/wikipedia_ingest.py -s $search_term -r $[SEARCH_RESULTS] -d $[INPUT_DATA_DIR]
+    done < $INPUT
+    touch $OUTPUT
+
+; Generate folds for the data and the proper file structure.
+workflow/01.generate_folds.complete <- workflow/00.build_corpus.complete [shell]
+    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] && touch $OUTPUT
+
+; Run Gensim word2vec 
+workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
+    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[INPUT_DATA_DIR] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
+
+; Run Evaluation
+workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
+    echo 'Evaluation complete.' && touch $OUTPUT
