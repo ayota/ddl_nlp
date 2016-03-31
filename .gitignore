@@ -1,4 +1,5 @@
 .DS_Store
+.idea/
 *.owl
 data/*/ontology.txt
 fun_3000/wrangling/*.txt
