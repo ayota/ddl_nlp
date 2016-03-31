@@ -1,1 +1,1 @@
-import med_abstract_ingest, wikipedia_ingest
+import med_abstract_ingest, wikipedia_ingest, med_textbook_ingest

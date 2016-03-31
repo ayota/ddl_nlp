@@ -1,11 +1,16 @@
+#todo:
+#remove latex + copyright symbol
+
 from os import path, pardir, makedirs
 from ConfigParser import SafeConfigParser
+from Bio import Entrez
 
 import urllib2
 import logging
 import optparse
 import codecs
 import xmltodict
+import re
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -15,52 +20,172 @@ def get_unicode_response(url):
     :param url: Web URL where HTTP GET will be submitted
     :return: Unicode string
     '''
+    try:
+        query_response = urllib2.urlopen(url)
+        query_response_content = query_response.read()
+        encoding = query_response.headers['content-type'].split('charset=')[-1]
+        unicode_response = unicode(query_response_content, encoding)
+    except:
+        #bad status line error ... can't fix it
+        unicode_response = ''
+    
+    return unicode_response
 
-    query_response = urllib2.urlopen(url)
-    query_response_content = query_response.read()
-    encoding = query_response.headers['content-type'].split('charset=')[-1]
-    unicode_reponse = unicode(query_response_content, encoding)
-    return unicode_reponse
-
-
-def get_document_ids(query_response, results):
+def pub_get_ids(query, results):
     '''
     Returns a list of pubmed document ids from a search query XML response
     :param query_response: xml response provided by pubmed
     :return: list of document ids
     '''
-    response_xml = xmltodict.parse(query_response)
+    Entrez.email = 'ecayoz@gmail.com'
+    handle = Entrez.esearch(db='pubmed', 
+                            sort='relevance', 
+                            retmax=str(results),
+                            retmode='xml', 
+                            term=query)
+    ids = Entrez.read(handle)
+    return ids
 
-    doc_list = []
-    if results > 1:
-        doc_list = [doc_id for doc_id in response_xml['eSearchResult']['IdList']['Id']]
-    else:
-        doc_list.append(''.join(response_xml['eSearchResult']['IdList']['Id']))
+def pub_get_papers(id_list):
+    '''
+    Returns a list of pubmed document ids from a search query XML response
+    :param id_list: List of ids
+    :return abstracts: Abstracts for given doc ids
+    '''
 
-    return doc_list
+    ids = ','.join(id_list)
+    Entrez.email = 'ecayoz@gmail.com'
+    handle = Entrez.efetch(db='pubmed',
+                           retmode='xml',
+                           id=ids)
+    abstracts = Entrez.read(handle)
+    return abstracts
+
+# def get_document_ids(query_response, results):
+#     '''
+#     Returns a list of pubmed document ids from a search query XML response
+#     :param query_response: xml response provided by pubmed
+#     :return: list of document ids
+#     '''
+#     response_xml = xmltodict.parse(query_response)
+
+#     doc_list = []
+#     if results > 1:
+#         doc_list = [doc_id for doc_id in response_xml['eSearchResult']['IdList']['Id']]
+#     else:
+#         doc_list.append(''.join(response_xml['eSearchResult']['IdList']['Id']))
+
+#     return doc_list
 
 
-def save_abstract_text(document_id, doc_url, storage_path):
+# def save_abstract_text(document_id, doc_url, storage_path):
+#     '''
+#     Fetch a medical abstract and save it 
+#     :param document_id: the query search term used for looking up the medical abstract 
+#     :param doc_url: URL for the online medical database document repository
+#     :param storage_path: path where to save the abstract fetched
+#     '''
+
+#     document_url = doc_url.replace('<DOC_ID>', document_id)
+#     doc_query_response = get_unicode_response(document_url)
+
+#     logging.info('Saving data to: %s' % storage_path)
+#     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
+#         f_out.write(doc_query_response)
+
+def fetch_pubmed(search_term, results):
     '''
     Fetch a medical abstract and save it 
-    :param document_id: the query search term used for looking up the medical abstract 
-    :param doc_url: URL for the online medical database document repository
-    :param storage_path: path where to save the abstract fetched
+    :param search_term: the query search term used for looking up the medical abstract 
+    :return: list of abstracts
     '''
 
-    document_url = doc_url.replace('<DOC_ID>', document_id)
-    doc_query_response = get_unicode_response(document_url)
+    ids = pub_get_ids(search_term, results)
+    id_list = ids['IdList']
+    papers = pub_get_papers(id_list)
+    abstracts = []
 
-    logging.info('Saving data to: %s' % storage_path)
-    with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
-        f_out.write(doc_query_response)
+    for index, paper in enumerate(papers):
+        try:
+            summary = paper['MedlineCitation']['Article']['Abstract'].values()
+        except KeyError:
+            logging.info('Document does not have abstract.')
+
+        for item in summary:
+            abstracts.extend(item)
+
+    return abstracts
+    # document_url = doc_url.replace('<DOC_ID>', document_id)
+    # doc_query_response = get_unicode_response(document_url)
+
+
+def fetch_arxiv(query_response):
+    '''
+    Fetch results from query Arxiv, then parses xml to get abstracts and save to file
+    :param document_url: search query as url
+    :return: list of abstracts
+    '''
+
+    entries = xmltodict.parse(query_response, process_namespaces=True)[u'http://www.w3.org/2005/Atom:feed'][u'http://www.w3.org/2005/Atom:entry']
+
+    try:
+        abstracts = [entry['http://www.w3.org/2005/Atom:summary'] for entry in entries]
+    except TypeError:
+        abstracts = entries['http://www.w3.org/2005/Atom:summary']
+
+    # for abstract in abstracts:
+    #     abstract = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', abstract)
+
+    return abstracts
+
+def fetch_medline(document_url):
+    '''
+    Fetch results from MedlinePlus query, then parses XML to get abstracts, strip HTML tags and save to file
+    :param document_url: search query as url
+    :return: list of abstracts
+    '''
+
+    query_response = get_unicode_response(document_url)
+    entries = xmltodict.parse(query_response, process_namespaces=True)[u'nlmSearchResult'][u'list'][u'document']
+
+    abstracts = []
+
+    try:
+        for entry in entries:
+            for line in entry[u'content']:
+                vals = line.values()
+                if vals[0] == u'FullSummary':
+                    # text = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', vals[1])
+                    text = vals[1]
+                    abstracts.append(text)
+    except TypeError:
+        for line in entries[u'content']:
+            vals = line.values()
+            if vals[0] == u'FullSummary':
+                # text = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', vals[1])
+                text = vals[1]
+                abstracts.append(text)
+
+    return abstracts
+
+def save_file(storage_path, abstracts):
+    '''
+    Save list of abstracts to file.
+    :param storage_path: Storage path for the file.
+    :param abstracts: List of abstracts
+    '''
+
+    with codecs.open(storage_path, 'a+', 'utf-8') as f_out:
+        blob = ' '.join(abstracts)
+        abstracts_cln = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', blob)
+        f_out.write(abstracts_cln)
 
 def get_medical_abstracts(search_term, data_directory, results=1):
     '''
     Retrieve a list of abstract texts from a search query
     :param search_term: the query search term used for looking up the medical abstracts e.g. 'virus'
     :param data_directory: local directory where abstracts will be saved as text files e.g. 'virus'
-    :param results: how many abstracts do we want to fetch
+    :param results: how many abstracts we want to fetch
     '''
     
     current_dir = path.dirname(path.realpath(__file__))
@@ -69,8 +194,10 @@ def get_medical_abstracts(search_term, data_directory, results=1):
 
     CONFIG_PARSER = SafeConfigParser()
     CONFIG_PARSER.read(current_dir + '/ingestion_config.py')
-    db_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_search_url')
-    doc_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_doc_url')
+    # pubmed_search_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_search_url')
+    arxiv_search_url = CONFIG_PARSER.get('medical_abstracts', 'arxiv_search_url')
+    medline_search_url = CONFIG_PARSER.get('medical_abstracts', 'medline_search_url')
+    # pubmed_doc_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_doc_url')
 
     data_dir = path.join(root_dir, 'data')
     if data_directory is not None:
@@ -82,25 +209,39 @@ def get_medical_abstracts(search_term, data_directory, results=1):
         makedirs(model_data_dir)
 
     if search_term is not None:
-        
-        medical_url =  db_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
-        query_response = get_unicode_response(medical_url)
+        local_file_path = model_data_dir + '/' + search_term + '.txt'
 
-        document_ids = get_document_ids(query_response, results)
+        #add pubmed to file
+        abstracts_pubmed = fetch_pubmed(search_term, results)
+        save_file(local_file_path, abstracts_pubmed)
+        # pubmed_url =  pubmed_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
+        # query_response = get_unicode_response(pubmed_url)
+        # document_ids = get_document_ids(query_response, results)
+        # for doc_id in document_ids:
+        #     logging.info('Retrieving document #%s from nlm.nih.gov' % (doc_id))
+        #     save_pubmed(doc_id, pubmed_doc_url, local_file_path)
 
-        for doc_id in document_ids:
-            logging.info('Retrieving document #%s from nlm.nih.gov' % (doc_id))
-            local_file_path = model_data_dir + '/' + doc_id + '.txt'
-            save_abstract_text(doc_id, doc_url, local_file_path)
+        #add arxiv to file
+        arxiv_url =  arxiv_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
+        query_response = get_unicode_response(arxiv_url)
+        if query_response != '':
+            abstracts_arxiv = fetch_arxiv(query_response)
+            save_file(local_file_path, abstracts_arxiv)
+
+        #add medline to file
+        medline_url =  medline_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
+        abstracts_medline = fetch_medline(medline_url.rstrip())
+        save_file(local_file_path, abstracts_medline)
+
     else:
         logging.info('You have not specified a search term!')
 
 if __name__ == '__main__':
 
     parser = optparse.OptionParser()
-    parser.add_option('-s', '--search_term', dest='search_term', default=None, type='string', help='Specify the wikipedia search term (Default is "Disease")')
+    parser.add_option('-s', '--search_term', dest='search_term', default=None, type='string', help='Specify the desired search term (Default is "Disease")')
     parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name for saving search data')
-    parser.add_option('-r', '--results', dest='results', default=1, type=int, help='Specify the number of search results to be returned by Wikipedia')
+    parser.add_option('-r', '--results', dest='results', default=1, type=int, help='Specify the number of search results to be returned by abstract queries.')
     (opts, args) = parser.parse_args()
 
     search_term = opts.search_term
