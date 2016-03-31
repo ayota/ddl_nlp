@@ -23,7 +23,8 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10):
     The training set includes all of the ontological additions, not just a random subset.
     :return:
     '''
-    #tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
+
+    # Tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
     tokenized_corpus=tokenize_sentences(corpus)
 
     tokenized_corpus=np.array(tokenized_corpus)
