@@ -1,32 +1,15 @@
-from os import path, pardir, makedirs
-from ConfigParser import SafeConfigParser
-from Bio import Entrez
-
-import urllib2
+import codecs
 import logging
 import optparse
-import codecs
+from ConfigParser import SafeConfigParser
+from os import path, pardir, makedirs
+
 import xmltodict
-import re
+from Bio import Entrez
+
+from fun_3000.ingestion.utils import get_unicode_response
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
-
-def get_unicode_response(url):
-    '''
-    Do an HTTP GET, figure out the charset and convert to unicode
-    :param url: Web URL where HTTP GET will be submitted
-    :return: Unicode string
-    '''
-    try:
-        query_response = urllib2.urlopen(url)
-        query_response_content = query_response.read()
-        encoding = query_response.headers['content-type'].split('charset=')[-1]
-        unicode_response = unicode(query_response_content, encoding)
-    except:
-        #bad status line error ... can't fix it
-        unicode_response = ''
-    
-    return unicode_response
 
 def pub_get_ids(query, results):
     '''

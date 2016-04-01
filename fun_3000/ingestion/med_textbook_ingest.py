@@ -1,25 +1,12 @@
-from os import path, pardir, makedirs
-
-import urllib2
+import codecs
 import logging
 import optparse
-import codecs
 import re
+from os import path, pardir, makedirs
+
+from fun_3000.ingestion.utils import get_unicode_response
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
-
-def get_unicode_response(url):
-    '''
-    Do an HTTP GET, figure out the charset and convert to unicode
-    :param url: Web URL where HTTP GET will be submitted
-    :return: Unicode string
-    '''
-
-    query_response = urllib2.urlopen(url)
-    query_response_content = query_response.read()
-    encoding = query_response.headers['content-type'].split('charset=')[-1]
-    unicode_reponse = unicode(query_response_content, encoding)
-    return unicode_reponse
 
 def strip_html(text):
 	'''
