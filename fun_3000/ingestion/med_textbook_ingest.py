@@ -1,21 +1,11 @@
 import codecs
 import logging
 import optparse
-import re
 from os import path, pardir, makedirs
 
 from fun_3000.ingestion.utils import get_unicode_response
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
-
-def strip_html(text):
-	'''
-    Remove HTML tags from text file (anything between < >)
-    :param text: Block of text with HTML tags
-    :return: Unicode string
-    '''
-	clean = re.sub('<[^>]+>', '', text)
-	return clean
 
 def save_book(text, storage_path):
 	'''
@@ -55,14 +45,12 @@ def get_books(data_directory):
     grays_file_path = model_data_dir + '/' + 'grays_anatomy.txt'
     logging.info("Retrieving Gray's Anatomy text")
     grays_response = get_unicode_response(grays_url)
-    grays_clean = strip_html(grays_response)
-    save_book(grays_clean, grays_file_path)
+    save_book(grays_response, grays_file_path)
 
     dict_file_path = model_data_dir + '/' + 'dict_med_terms.txt'
     logging.info("Retrieving Dictionary of Medical Terms")
     dict_response = get_unicode_response(dict_url)
-    dict_clean = strip_html(dict_response)
-    save_book(dict_clean, dict_file_path)
+    save_book(dict_response, dict_file_path)
 
 
 if __name__ == '__main__':
