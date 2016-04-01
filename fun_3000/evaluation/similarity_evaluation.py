@@ -91,7 +91,7 @@ class TRAINING_BUILDER():
         # Generate a dataframe with both the forward and backward relationships between words.
         forward_and_backwards = pd.concat([human_similarity_results, human_similarity_results_backwards], axis=0)
 
-        return forward_and_backwards[['Term1','Term2','Mean']]
+        return forward_and_backwards[['Term1', 'Term2', 'Mean']]
 
 
     def generate_df_with_response(self, features, response):
@@ -102,14 +102,32 @@ class TRAINING_BUILDER():
         '''
         combined = pd.merge(left=features, right=response, how='inner', on=['Term1', 'Term2'])
         combined.drop_duplicates(inplace=True)
+
+        # We cannot have any NAs in the dataframe for it to run in sklearn.
+        combined.dropna(axis=0, how='any', thresh=None, subset=None, inplace=True)
+
         return combined
 
 
 
 class SIMILARITY_PREDICTOR(object):
 
-    def generate_folds(self):
-        data = self.ingest_gensim_vectors()
+    def generate_folds(self, data):
+
+        kf = sklearn.cross_validation.KFold(n=data.shape[0], n_folds=3, shuffle=True)
+
+        # The features.  The first 2 columns are the names of the terms so those are removed.  The last column is the Response
+        X = np.array(np.array(data.iloc[:,2:-1]))
+        # The response.  The last column is the Response.
+        y = np.array(np.array(data['Mean']))
+
+        for train_index, test_index in kf:
+            print("TRAIN:", train_index, "TEST:", test_index)
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+
+    def run_model(self, training):
+        sklearn.ensemble.RandomForestRegressor(training)
 
 
 # word_list = ['include', 'rock,', 'Billy']
@@ -122,4 +140,4 @@ class SIMILARITY_PREDICTOR(object):
 # training_frame = y.generate_df_with_response(features, response_frame)
 #
 # model.most_similar('jazz')
-#
+
