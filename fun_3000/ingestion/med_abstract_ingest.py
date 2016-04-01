@@ -1,6 +1,3 @@
-#todo:
-#remove latex + copyright symbol
-
 from os import path, pardir, makedirs
 from ConfigParser import SafeConfigParser
 from Bio import Entrez
@@ -35,6 +32,7 @@ def pub_get_ids(query, results):
     '''
     Returns a list of pubmed document ids from a search query XML response
     :param query_response: xml response provided by pubmed
+    :param results: int number of results to return
     :return: list of document ids
     '''
     Entrez.email = 'ecayoz@gmail.com'
@@ -61,42 +59,11 @@ def pub_get_papers(id_list):
     abstracts = Entrez.read(handle)
     return abstracts
 
-# def get_document_ids(query_response, results):
-#     '''
-#     Returns a list of pubmed document ids from a search query XML response
-#     :param query_response: xml response provided by pubmed
-#     :return: list of document ids
-#     '''
-#     response_xml = xmltodict.parse(query_response)
-
-#     doc_list = []
-#     if results > 1:
-#         doc_list = [doc_id for doc_id in response_xml['eSearchResult']['IdList']['Id']]
-#     else:
-#         doc_list.append(''.join(response_xml['eSearchResult']['IdList']['Id']))
-
-#     return doc_list
-
-
-# def save_abstract_text(document_id, doc_url, storage_path):
-#     '''
-#     Fetch a medical abstract and save it 
-#     :param document_id: the query search term used for looking up the medical abstract 
-#     :param doc_url: URL for the online medical database document repository
-#     :param storage_path: path where to save the abstract fetched
-#     '''
-
-#     document_url = doc_url.replace('<DOC_ID>', document_id)
-#     doc_query_response = get_unicode_response(document_url)
-
-#     logging.info('Saving data to: %s' % storage_path)
-#     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
-#         f_out.write(doc_query_response)
-
 def fetch_pubmed(search_term, results):
     '''
-    Fetch a medical abstract and save it 
-    :param search_term: the query search term used for looking up the medical abstract 
+    Fetch a medical abstract
+    :param search_term: the query search term used for looking up the medical abstract
+    :param results: int number of results to return
     :return: list of abstracts
     '''
 
@@ -115,14 +82,12 @@ def fetch_pubmed(search_term, results):
             abstracts.extend(item)
 
     return abstracts
-    # document_url = doc_url.replace('<DOC_ID>', document_id)
-    # doc_query_response = get_unicode_response(document_url)
 
 
 def fetch_arxiv(query_response):
     '''
-    Fetch results from query Arxiv, then parses xml to get abstracts and save to file
-    :param document_url: search query as url
+    Fetch results from query Arxiv, then parses xml to get abstracts
+    :param query_response: url to for an Arxiv query
     :return: list of abstracts
     '''
 
@@ -133,14 +98,11 @@ def fetch_arxiv(query_response):
     except TypeError:
         abstracts = entries['http://www.w3.org/2005/Atom:summary']
 
-    # for abstract in abstracts:
-    #     abstract = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', abstract)
-
     return abstracts
 
 def fetch_medline(document_url):
     '''
-    Fetch results from MedlinePlus query, then parses XML to get abstracts, strip HTML tags and save to file
+    Fetch results from MedlinePlus query, then parses XML to get abstracts
     :param document_url: search query as url
     :return: list of abstracts
     '''
@@ -155,14 +117,13 @@ def fetch_medline(document_url):
             for line in entry[u'content']:
                 vals = line.values()
                 if vals[0] == u'FullSummary':
-                    # text = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', vals[1])
                     text = vals[1]
                     abstracts.append(text)
     except TypeError:
+        # only one result returned
         for line in entries[u'content']:
             vals = line.values()
             if vals[0] == u'FullSummary':
-                # text = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', vals[1])
                 text = vals[1]
                 abstracts.append(text)
 
@@ -177,8 +138,7 @@ def save_file(storage_path, abstracts):
 
     with codecs.open(storage_path, 'a+', 'utf-8') as f_out:
         blob = ' '.join(abstracts)
-        abstracts_cln = re.sub('<[^>]+> | {[^>]+} | \n | \xA9+. | [^>]+\xA9+.', '', blob)
-        f_out.write(abstracts_cln)
+        f_out.write(abstracts)
 
 def get_medical_abstracts(search_term, data_directory, results=1):
     '''
@@ -214,12 +174,6 @@ def get_medical_abstracts(search_term, data_directory, results=1):
         #add pubmed to file
         abstracts_pubmed = fetch_pubmed(search_term, results)
         save_file(local_file_path, abstracts_pubmed)
-        # pubmed_url =  pubmed_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
-        # query_response = get_unicode_response(pubmed_url)
-        # document_ids = get_document_ids(query_response, results)
-        # for doc_id in document_ids:
-        #     logging.info('Retrieving document #%s from nlm.nih.gov' % (doc_id))
-        #     save_pubmed(doc_id, pubmed_doc_url, local_file_path)
 
         #add arxiv to file
         arxiv_url =  arxiv_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
