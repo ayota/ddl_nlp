@@ -137,10 +137,8 @@ def get_medical_abstracts(search_term, data_directory, results=1):
 
     CONFIG_PARSER = SafeConfigParser()
     CONFIG_PARSER.read(current_dir + '/ingestion_config.py')
-    # pubmed_search_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_search_url')
     arxiv_search_url = CONFIG_PARSER.get('medical_abstracts', 'arxiv_search_url')
     medline_search_url = CONFIG_PARSER.get('medical_abstracts', 'medline_search_url')
-    # pubmed_doc_url = CONFIG_PARSER.get('medical_abstracts', 'pubmed_doc_url')
 
     data_dir = path.join(root_dir, 'data')
     if data_directory is not None:
