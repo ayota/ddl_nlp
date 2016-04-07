@@ -1,8 +1,3 @@
-#weird behavior when only one search result (see Zika virus)
-#pubmed also ends up with invalid doc no. somehow via search
-#is OK to pull full pub med entry with author info, or do we want only abstract?
-#questions: do we want just one giant file (wiki + abstracts?); &, if using one giant file, do we need folder structure?
-
 import logging
 import ingestion
 import optparse

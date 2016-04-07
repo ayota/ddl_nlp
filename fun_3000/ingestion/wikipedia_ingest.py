@@ -42,8 +42,10 @@ def get_wikipedia_pages(search_term, data_directory, results=1):
         makedirs(model_data_dir)
 
     if search_term is not None:
+        # get all the related pages by searching for the base term
         wiki_results = src(search_term, results)
 
+        # for each related page, save the page's content
         for result in wiki_results:
             logging.info('Retrieving "%s" page from Wikipedia.' % (result))
             local_file_path = model_data_dir + '/' + result.replace('/', '_') + '.txt'
