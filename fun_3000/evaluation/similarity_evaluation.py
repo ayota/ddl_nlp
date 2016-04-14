@@ -55,7 +55,7 @@ class TRAINING_BUILDER():
         # WARNING: 5 below is hardcoded. If we change the hyperparameter for the middle layer of the gensim model this will
         # error
         width = 5
-        import pdb; pdb.set_trace()
+
         feature_array = np.zeros((len(word_list)*len(word_list), width)) # Initialize an empty numpy array of the size we want.
 
         # The features that are generated are the vector subtraction between two vector representations of the words.
@@ -109,7 +109,6 @@ class TRAINING_BUILDER():
         return combined
 
 
-
 class SIMILARITY_PREDICTOR(object):
 
     def generate_folds(self, data):
@@ -117,27 +116,33 @@ class SIMILARITY_PREDICTOR(object):
         kf = sklearn.cross_validation.KFold(n=data.shape[0], n_folds=3, shuffle=True)
 
         # The features.  The first 2 columns are the names of the terms so those are removed.  The last column is the Response
-        X = np.array(np.array(data.iloc[:,2:-1]))
+        X = np.array(np.array(data.iloc[:, 2:-1]))
         # The response.  The last column is the Response.
         y = np.array(np.array(data['Mean']))
 
         for train_index, test_index in kf:
-            print("TRAIN:", train_index, "TEST:", test_index)
             X_train, X_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
 
-    def run_model(self, training):
-        sklearn.ensemble.RandomForestRegressor(training)
+        return X_train, X_test, y_train, y_test
+
+    def train(self, X_train, y_train):
+        trainer_object = sklearn.ensemble.RandomForestRegressor()
+
+        trainer_object.fit(X_train, y_train)
+
+        return trainer_object
 
 
-# word_list = ['include', 'rock,', 'Billy']
-#
-# y = TRAINING_BUILDER()
-# word_list = y.get_words_list()
-# model = y.get_model_features(subject='jazz', fold = 1)
-# features = y.gen_features(model, word_list)
-# response_frame = y.generate_response_frame(y.medical_coder_similarities)
-# training_frame = y.generate_df_with_response(features, response_frame)
-#
+
+word_list = ['include', 'rock,', 'Billy']
+
+y = TRAINING_BUILDER()
+word_list = y.get_words_list()
+model = y.get_model_features(subject='jazz', fold = 1)
+features = y.gen_features(model, word_list)
+response_frame = y.generate_response_frame(y.medical_coder_similarities)
+training_frame = y.generate_df_with_response(features, response_frame)
+
 # model.most_similar('jazz')
 
