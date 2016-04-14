@@ -1,9 +1,8 @@
 import gensim
-import csv
 import pandas as pd
-import sklearn
+from sklearn.ensemble import RandomForestRegressor as rfr
 import numpy as np
-
+from sklearn.cross_validation import cross_val_score
 
 class TRAINING_BUILDER():
     '''
@@ -75,7 +74,6 @@ class TRAINING_BUILDER():
 
         return combined
 
-
     def generate_response_frame(self, human_similarity_results):
         '''
         Generates a dataframe with all combinations of term similarities from an input dataframe (the source human measured
@@ -92,7 +90,6 @@ class TRAINING_BUILDER():
         forward_and_backwards = pd.concat([human_similarity_results, human_similarity_results_backwards], axis=0)
 
         return forward_and_backwards[['Term1', 'Term2', 'Mean']]
-
 
     def generate_df_with_response(self, features, response):
         '''
@@ -111,38 +108,51 @@ class TRAINING_BUILDER():
 
 class SIMILARITY_PREDICTOR(object):
 
-    def generate_folds(self, data):
-
-        kf = sklearn.cross_validation.KFold(n=data.shape[0], n_folds=3, shuffle=True)
+    def train_cv_and_score(self, data):
+        '''
+        The main sklearn function used in this is cross_val_score which basically does it all sets up folds, trains,
+        runs a cross validated R^2 score.
+        :param data:
+        :return:
+        '''
 
         # The features.  The first 2 columns are the names of the terms so those are removed.  The last column is the Response
         X = np.array(np.array(data.iloc[:, 2:-1]))
         # The response.  The last column is the Response.
         y = np.array(np.array(data['Mean']))
 
-        for train_index, test_index in kf:
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
+        estimator = rfr()
 
-        return X_train, X_test, y_train, y_test
+        score = cross_val_score(estimator, X, y).mean()
 
-    def train(self, X_train, y_train):
-        trainer_object = sklearn.ensemble.RandomForestRegressor()
-
-        trainer_object.fit(X_train, y_train)
-
-        return trainer_object
+        return score
 
 
+def build_train(subject, fold):
+    y = TRAINING_BUILDER()
+    word_list = y.get_words_list()
+    model = y.get_model_features(subject=subject, fold = fold)
+    features = y.gen_features(model, word_list)
+    response_frame = y.generate_response_frame(y.medical_coder_similarities)
+    frame = y.generate_df_with_response(features, response_frame)
 
-word_list = ['include', 'rock,', 'Billy']
+    return frame
 
-y = TRAINING_BUILDER()
-word_list = y.get_words_list()
-model = y.get_model_features(subject='jazz', fold = 1)
-features = y.gen_features(model, word_list)
-response_frame = y.generate_response_frame(y.medical_coder_similarities)
-training_frame = y.generate_df_with_response(features, response_frame)
+def score(data):
+    sp = SIMILARITY_PREDICTOR()
+    return sp.train_cv_and_score(data)
 
-# model.most_similar('jazz')
+def build_train_and_score(subject, fold):
+    data = build_train(subject=subject, fold=fold)
+    final_score = score(data)
+    return final_score
+
+def full_cross_validated_score(subject, folds):
+
+    scores = []
+    for fold in range(1,folds+1):
+        score.append(build_train_and_score(subject, fold))
+
+    return sum(scores) / float(len(scores))
+
 
