@@ -8,23 +8,25 @@ import codecs
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
 def save_wiki_text(wiki_search_term, storage_path):
+    '''
+    Save the contents of a wiki page into a local txt file
+    :param wiki_search_term: unique term referring a particular wiki page
+    :param storage_path: where to save the file
+    '''
+
     page = wpg(wiki_search_term)
     
     logging.info('Saving data to: %s' % storage_path)
     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
         f_out.write(page.content)
 
-def main():
-
-    parser = optparse.OptionParser()
-    parser.add_option('-s', '--search_term', dest='search_term', default=None, type='string', help='Specify the wikipedia search term (Default is "Disease")')
-    parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name for saving search data')
-    parser.add_option('-r', '--results', dest='results', default=1, help='Specify the number of search results to be returned by Wikipedia')
-    (opts, args) = parser.parse_args()
-
-    search_term = opts.search_term
-    data_directory = opts.data_directory
-    results = opts.results
+def get_wikipedia_pages(search_term, data_directory, results=1):
+    '''
+    Take a search term and look up related pages on wikipedia, then save as many results as needed
+    :param search_term: the topic you're looking for
+    :param data_directory: where the pages will be saved locally (corpuses are saved each within its own dir under data/)
+    :param results: how many related pages to save
+    '''
 
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
@@ -40,8 +42,10 @@ def main():
         makedirs(model_data_dir)
 
     if search_term is not None:
+        # get all the related pages by searching for the base term
         wiki_results = src(search_term, results)
 
+        # for each related page, save the page's content
         for result in wiki_results:
             logging.info('Retrieving "%s" page from Wikipedia.' % (result))
             local_file_path = model_data_dir + '/' + result.replace('/', '_') + '.txt'
@@ -50,4 +54,15 @@ def main():
         logging.info('You have not specified a search term!')
 
 if __name__ == '__main__':
-    main()
+
+    parser = optparse.OptionParser()
+    parser.add_option('-s', '--search_term', dest='search_term', default=None, type='string', help='Specify the wikipedia search term (Default is "Disease")')
+    parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name for saving search data')
+    parser.add_option('-r', '--results', dest='results', default=1, help='Specify the number of search results to be returned by Wikipedia')
+    (opts, args) = parser.parse_args()
+
+    search_term = opts.search_term
+    data_directory = opts.data_directory
+    results = opts.results
+
+    get_wikipedia_pages(search_term, data_directory, results)
