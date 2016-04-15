@@ -136,7 +136,7 @@ def get_medical_abstracts(search_term, data_directory, results=1):
     root_dir = path.abspath(path.join(parent_dir, pardir))
 
     CONFIG_PARSER = SafeConfigParser()
-    CONFIG_PARSER.read(current_dir + '/ingestion_config.py')
+    CONFIG_PARSER.read(current_dir + '/ingestion_config.conf')
     arxiv_search_url = CONFIG_PARSER.get('medical_abstracts', 'arxiv_search_url')
     medline_search_url = CONFIG_PARSER.get('medical_abstracts', 'medline_search_url')
 

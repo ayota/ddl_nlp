@@ -24,7 +24,7 @@ def ingest_and_wrangle_owls(data_dir):
     # get source and instance ontologies from config
     from ConfigParser import SafeConfigParser
     CONFIG_PARSER = SafeConfigParser()
-    CONFIG_PARSER.read(current_dir + '/ingestion_config.py')
+    CONFIG_PARSER.read(current_dir + '/ingestion_config.conf')
     other_ontologies = CONFIG_PARSER.items('ontologies')
     # get the source ontology which should be the first one in the config file
     source_ontology = other_ontologies.pop(0)
