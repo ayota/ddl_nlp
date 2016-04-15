@@ -1,6 +1,16 @@
 # ddl_nlp
 Repo for DDL research lab project.
 
+The general workflow for an individual experiment goes through these steps.
+
+1. Ingestion: We ingest corpuses (form various sources, potentially ontologies into a defined folder structure.
+2. Generate_Folds: A script is run that generates/splits the data up into several 'folds' and both a test and train file
+is developed under each fold.  The folder structure fully supports this as described below.
+3. Gensim word2vec is run and a model result is generated for each fold.
+4. We then take the resulting model file and the human medical coder results and combine them into a single dataset
+where we run a random forest regressor on them for each fold. This results in an overall score (R^2) for an experiment
+across all folds.
+
 # Usage
 
 ### To get data from wikipedia (optional):
@@ -10,7 +20,7 @@ Repo for DDL research lab project.
 python fun_3000/ingestion/wikipedia_ingest.py -s search_term
 ```
 
-Optionally, you can specifiy a directory name where the data will be stored (by default, the script will use your search term as a directory name):
+Optionally, you can specify a directory name where the data will be stored (by default, the script will use your search term as a directory name):
 
 ```
 python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
@@ -18,12 +28,19 @@ python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
 
 ### To generate data-folds
 
-You can generate a folder structure that will contain prepared training and test sets for k number of folds.
+You can generate a folder structure that will contain prepared training and test sets for k number of folds. Below we do
+3 folds (-k), we include a build that builds in an ontology into the corpus (-o), and we set the random seed to 10 (-s).
+Keep in mind that usually at this point in the pipeline Drake is running the remainder of the steps including this one.
+So usually you won't be calling this script manually.
+```
+python fun_3000/wrangling/generate_folds.py -d experiment_name -k 3 -o True -s 10
+```
 
-The folder structure follows the following pattern UNDER the data directory
+The folder structure follows the following pattern UNDER the 'data' directory.  Where the experiment_name is a human/user
+determined name for the entire experiment.
 ```
 .
-+-- jazz
++-- experiment_name
 |   +--corpus_filename_1.txt
 |   +--corpus_filename_2.txt
 |   +--1
@@ -39,7 +56,7 @@ The folder structure follows the following pattern UNDER the data directory
 ```
 The script also expects ontology generated files to exist in a SISTER (to data) 'ontology' folder like the example below
 ```
-+-- jazz
++-- experiment_name
 |   +--ontology_filename_1.txt
 |   +--ontology_filename_2.txt
 ```
