@@ -6,7 +6,7 @@ gensim==0.12.3
 httpretty==0.8.6
 numpy==1.10.1
 requests==2.8.1
-sklearn==0.17
+sklearn
 scipy==0.16.1
 rdflib==4.2.1
 progressbar2==3.6.2
