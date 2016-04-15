@@ -4,20 +4,21 @@ import progressbar
 from os import path, pardir, makedirs
 import optparse
 
-def ingest_and_wrangle_owls(data_dir):
+def ingest_and_wrangle_owls(data_directory):
     """
-    Ingest some instance ontologies with the OGMS ontology and create individual txt files that
-    represent instance ontology->OGMS `rdfs:subClassOf` relationships with the sentence
-    {instance ontology label} is {OGMS superclass label}
+    Ingest some instance ontologies with the source ontology and create individual txt files that
+    represent instance ontology->source ontology `rdfs:subClassOf` relationships with the sentence
+    {instance ontology label} is {source ontology superclass label}
     """
 
     # set up locations
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, pardir))
     root_dir = path.abspath(path.join(parent_dir, pardir))
+    data_dir = path.join(root_dir, 'data')
 
-    # set up where our ontologies are going to go
-    output_dir = path.join(data_dir, "ontologies")
+    # set up where our ontologies are going to go, in {root dir}/data/{data directory name}/ontologies
+    output_dir = path.join(data_dir, data_directory, "ontologies")
     if not path.exists(output_dir):
         makedirs(output_dir)
 
@@ -59,7 +60,7 @@ def ingest_and_wrangle_owls(data_dir):
 
 if __name__=='__main__':
     parser = optparse.OptionParser()
-    parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a parent directory name relative to where you are running the script for saving ontology data e.g. data to put in data/ontologies')
+    parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name to save ontology data in e.g. run1 to put in /ddl_nlp/data/run1/ontologies')
     (opts, args) = parser.parse_args()
 
     data_directory = opts.data_directory
