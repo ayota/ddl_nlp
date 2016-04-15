@@ -47,8 +47,20 @@ def fetch_books(directory):
 	book_grab = ingestion.med_textbook_ingest
 	book_grab.get_books(directory)
 
+def fetch_ontologies(directory):
+	"""
+	Based on source and instance ontologies specified in ingestion/ingestion_config.conf, generate sentences from those ontologies
+	:param directory:  parent directory for 'ontologies' subdirectory that will hold all the ontologies
+	"""
+
+	ontology_grab = ingestion.ingest_ontologies
+	ontology_grab.ingest_and_wrangle_owls(directory)
 
 if __name__ == '__main__':
+	"""
+	Usage:
+		python get_corpus.py -s [CSV OF SEARCH TERMS] -r [NUM RESULTS YOU WANT RETURNED] -d [DIRECTORY FOR ALL FETCHED FILES]
+	"""
 
 	parser = optparse.OptionParser()
 	parser.add_option('-s', '--search_file', dest='search_file', default=None, type='string', help='Specify the filename for list of search terms; default is med_terms.csv.')
@@ -64,3 +76,4 @@ if __name__ == '__main__':
 	search_terms = import_terms(search_file)
 	fetch_corpus(search_terms, directory, results)
 	fetch_books(directory)
+	fetch_ontologies(directory)
