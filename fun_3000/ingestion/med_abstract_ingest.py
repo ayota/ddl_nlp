@@ -7,7 +7,7 @@ from os import path, pardir, makedirs
 import xmltodict
 from Bio import Entrez
 
-from fun_3000.ingestion.utils import get_unicode_response
+from utils import get_unicode_response
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
