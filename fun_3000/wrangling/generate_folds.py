@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from sklearn.cross_validation import KFold
 from os import path, makedirs, listdir
 import re
@@ -5,6 +8,22 @@ import numpy as np
 import optparse
 import sys
 
+def clean_corpus(corpus=None):
+    '''
+    cleans out all non-ascii characters, newlines, carriage returns, wikipedia headers, other fun stuff
+    :param corpus: a string from a text file representing the corpus
+    :return:
+    '''
+
+    corpus = re.sub(r'<.*?>', ' ', corpus)
+    corpus = re.sub(r'{.*?}', ' ', corpus)
+    corpus = re.sub(r'${.*?}', ' ', corpus)
+    corpus = re.sub(r'={2,}.*?={2,}', ' ', corpus)
+    corpus = re.sub(r'\n|\r', ' ', corpus)
+    corpus = re.sub(r'\\x[a-zA-Z0-9]{2,}', ' ', corpus)
+    corpus = re.sub(r'\s{2,}.*?\s{2,}', ' ', corpus)
+    corpus = corpus.strip()
+    return corpus
 
 def tokenize_sentences(corpus=None):
     '''
@@ -13,6 +32,31 @@ def tokenize_sentences(corpus=None):
     :return:
     '''
     return re.split('(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s',corpus)
+
+def bad_sentence(sentence, sent_len):
+    '''
+    Runs a series of tests to remove suspect sentences. Check for proper punctuation and capitalization.
+    :param sentence: sentence to check 
+    :param sent_len: min number of words required to be considered a sentence
+    :return True or False: True means sentence is bad
+    '''
+    words = len(sentence.split(' '))
+    if words < sent_len: return True
+    if sentence[-1] not in ['.','?','!','.)']: return True
+    if sentence[0].islower(): return True
+    if sentence[0].isdigit(): return True
+
+def validate_sentences(sentences=None, sent_len=10):
+    '''
+    Iterates through list of sentences in corpus and removes those that start with lowercase letters or numbers, and that are less than a certain length.
+    :param sent_len: a list of sentences
+    :param length: the minimum length for a sentence
+    :return: list of sentences
+    '''
+    for index,text in enumerate(sentences):
+        sentences[index] = clean_corpus(text)
+        if bad_sentence(sentences[index], sent_len): sentences.pop(index)
+    return sentences
 
 def generate_word2vec_folds(corpus='Empty', folds=3, seed=10):
     '''
@@ -24,7 +68,11 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10):
     :return:
     '''
     #tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
-    tokenized_corpus=tokenize_sentences(corpus)
+    cleaned_corpus=clean_corpus(corpus) #remove random characters from corpus
+
+    tokenized_corpus=tokenize_sentences(cleaned_corpus) #split into sentences
+
+    tokenized_corpus=validate_sentences(tokenized_corpus, 10) #keep only sentences that are >= 10 words, start with capital
 
     tokenized_corpus=np.array(tokenized_corpus)
 
@@ -102,7 +150,7 @@ def store_file(folds_dict, input_data_dir):
     if not path.exists(specific_data_dir):
         makedirs(specific_data_dir)
 
-    # Generate a folder for each fold and under each fold folder builda  folder for train and test, then add a train
+    # Generate a folder for each fold and under each fold folder build a  folder for train and test, then add a train
     # and test file in each folder.
     fold_number = 1
     for fold in folds_dict:
