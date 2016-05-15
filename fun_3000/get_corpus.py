@@ -23,8 +23,9 @@ def import_terms(filename):
 
 def fetch_corpus(search_terms, data_dir, results):
 	'''
-	Runs through list of search terms for wikipedia and abstract ingestion functions
-	:param search_terms: a list of search terms
+	Runs through list of search terms for wikipedia and abstract ingestion functions. NOTE: This function returns
+	nothing because it is simply saving the results to the filesystem for each search term.
+	:param search_terms: a list of search terms.
 	:param results: number of results to get from each source
 	'''
 
@@ -35,7 +36,9 @@ def fetch_corpus(search_terms, data_dir, results):
 
 	for term in search_terms:
 		wiki_search.get_wikipedia_pages(term, data_dir, results)
+		logging.info('Fetched %s term wiki artifacts.' % term)
 		med_search.get_medical_abstracts(term, data_dir, results)
+		logging.info('Fetched %s term medical abstract artifacts.' % term)
 
 def fetch_books(directory):
 	'''

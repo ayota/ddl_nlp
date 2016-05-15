@@ -5,7 +5,7 @@ from ConfigParser import SafeConfigParser
 from os import path, pardir, makedirs
 
 import xmltodict
-from Bio import Entrez
+from Bio import Entrez #from a pip install this is biopython v 1.6.6
 
 from utils import get_unicode_response
 
@@ -69,17 +69,32 @@ def fetch_pubmed(search_term, results):
 
 def fetch_arxiv(query_response):
     '''
-    Fetch results from query Arxiv, then parses xml to get abstracts
+    Fetch results from query Arxiv, then parses xml to get abstracts.  If there is a problem where the term cannot be
+    found it returns a list with one entry that is an empty string.
     :param query_response: url to for an Arxiv query
     :return: list of abstracts
     '''
 
-    entries = xmltodict.parse(query_response, process_namespaces=True)[u'http://www.w3.org/2005/Atom:feed'][u'http://www.w3.org/2005/Atom:entry']
+    # get the feed from the returned OrderedDict
+    try:
+        feed = xmltodict.parse(query_response, process_namespaces=True)[u'http://www.w3.org/2005/Atom:feed']
+    except:
+        logging.warning('"http://www.w3.org/2005/Atom:feed" does not exist.')
+
+    # get the entry which includes all entries from the returned OrderedDict
+    try:
+        entries = feed[u'http://www.w3.org/2005/Atom:entry']
+    except:
+        logging.warning('"http://www.w3.org/2005/Atom:entry" does not exist.')
+        abstracts = ['']
 
     try:
         abstracts = [entry['http://www.w3.org/2005/Atom:summary'] for entry in entries]
     except TypeError:
         abstracts = entries['http://www.w3.org/2005/Atom:summary']
+    except:
+        logging.warning('There are no entries for this term')
+        abstracts = ['']
 
     return abstracts
 
@@ -91,24 +106,26 @@ def fetch_medline(document_url):
     '''
 
     query_response = get_unicode_response(document_url)
-    entries = xmltodict.parse(query_response, process_namespaces=True)[u'nlmSearchResult'][u'list'][u'document']
-
-    abstracts = []
-
-    try:
-        for entry in entries:
-            for line in entry[u'content']:
+    try: # If the search term does not exist this will send a warning.
+        entries = xmltodict.parse(query_response, process_namespaces=True)[u'nlmSearchResult'][u'list'][u'document']
+        abstracts = []
+        try:
+            for entry in entries:
+                for line in entry[u'content']:
+                    vals = line.values()
+                    if vals[0] == u'FullSummary':
+                        text = vals[1]
+                        abstracts.append(text)
+        except TypeError:
+            # only one result returned
+            for line in entries[u'content']:
                 vals = line.values()
                 if vals[0] == u'FullSummary':
                     text = vals[1]
                     abstracts.append(text)
-    except TypeError:
-        # only one result returned
-        for line in entries[u'content']:
-            vals = line.values()
-            if vals[0] == u'FullSummary':
-                text = vals[1]
-                abstracts.append(text)
+    except KeyError:
+        logging.warning('Term does not exist in medline.')
+        abstracts = ['']
 
     return abstracts
 
@@ -118,10 +135,9 @@ def save_file(storage_path, abstracts):
     :param storage_path: Storage path for the file.
     :param abstracts: List of abstracts
     '''
-
     with codecs.open(storage_path, 'a+', 'utf-8') as f_out:
         blob = ' '.join(abstracts)
-        f_out.write(abstracts)
+        f_out.write(blob) # Needs to write a string. Thus blob is saved.
 
 def get_medical_abstracts(search_term, data_directory, results=1):
     '''
@@ -149,7 +165,7 @@ def get_medical_abstracts(search_term, data_directory, results=1):
     if not path.exists(model_data_dir):
         makedirs(model_data_dir)
 
-    if search_term is not None:
+    if search_term is not None: # If there is a search term then go get data for that search term.
         local_file_path = model_data_dir + '/' + search_term + '.txt'
 
         #add pubmed to file
