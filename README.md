@@ -23,7 +23,7 @@ You can generate a folder structure that will contain prepared training and test
 The folder structure follows the following pattern UNDER the data directory
 ```
 .
-+-- jazz
++-- {SOME_RUN}
 |   +--corpus_filename_1.txt
 |   +--corpus_filename_2.txt
 |   +--1
@@ -39,7 +39,7 @@ The folder structure follows the following pattern UNDER the data directory
 ```
 The script also expects ontology generated files to exist in a SISTER (to data) 'ontology' folder like the example below
 ```
-+-- jazz
++-- {SOME_RUN}
 |   +--ontology_filename_1.txt
 |   +--ontology_filename_2.txt
 ```
@@ -49,7 +49,7 @@ In the example above only 2 folds were generated.
 To generate the proper files and folder structure do the following:
 
 ```
-python fun_3000/wrangling/generate_folds.py -d 'jazz' -k 3 -o True -s 10
+python fun_3000/wrangling/generate_folds.py -d '{SOME_RUN}' -k 3 -o True -s 10
 ```
 where: 
 
@@ -86,19 +86,19 @@ Let's say you wanted to train a Word2Vec model with the "Jazz" wikipedia page as
 ### Step 1: Retrieve wikipedia page content
 
 ```
-python fun_3000/ingestion/wikipedia_ingest.py -s 'jazz'
+python fun_3000/ingestion/wikipedia_ingest.py -s '{SOME_RUN}'
 ```
 
-Confirm that the text content was downloaded and stored under data/jazz/model_data.txt
+Confirm that the text content was downloaded and stored under data/{SOME_RUN}/model_data.txt
 
 (Alternatively: you can manually create a directory under data/ and placing all corpus files within it)
 
 ### Step 2: Create a Word2Vec model
 
 ```
-python fun_3000/word2vec.py -i jazz
+python fun_3000/word2vec.py -i {SOME_RUN}
 ```
-Confirm that the model was created and saved under models/jazz/jazz.model
+Confirm that the model was created and saved under models/{SOME_RUN}/{SOME_RUN}.model
 
 ### Step 3: Explore the model
 
@@ -106,7 +106,7 @@ Within a python REPL:
 
 ```python
 >>> import gensim
->>> model = gensim.models.Word2Vec.load('models/jazz/jazz.model')
+>>> model = gensim.models.Word2Vec.load('models/{SOME_RUN}/{SOME_RUN}.model')
 >>> model.most_similar('jazz')
     [('sound', 0.9113765358924866), ('well', 0.9058974981307983), ('had', 0.9046300649642944), ('bass', 0.9037381410598755), ('In', 0.9003950953483582), ('blues', 0.9001777768135071), ('on', 0.8995728492736816), ('at', 0.8993135690689087), ('rather', 0.8992522954940796), ('such', 0.8990519046783447)]
 ```
