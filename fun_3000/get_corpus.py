@@ -53,7 +53,7 @@ if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option('-s', '--search_file', dest='search_file', default=None, type='string', help='Specify the filename for list of search terms; default is med_terms.csv.')
 	parser.add_option('-r', '--results', dest='results', default=1, type=int, help='Specify the number of search results to be returned by abstract queries.')
-	parser.add_option('-d', '--directory', dest='directory', default=1, type='string', help='Specify a directory for corpus text and ontology.')
+	parser.add_option('-d', '--directory', dest='directory', default=None, type='string', help='Specify a directory for corpus text and ontology.')
 
 	(opts, args) = parser.parse_args()
 

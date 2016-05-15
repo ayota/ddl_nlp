@@ -3,17 +3,77 @@ Repo for DDL research lab project.
 
 # Usage
 
-### To get data from wikipedia (optional):
+### Ingestion (optional)
+
+The ingestion module pulls ontologies along with text from several sources and stores them in two files (one for ontologies, one for text). There is a controller script, `get_corpus.py`, which pulls data from all sources based on a set of search terms submitted via csv.
+
+#### Using the controller script
+
+```
+python fun_3000/get_corpus.py -s search_term -d run_1 
+
+```
+
+By default, the script fetches one result. This can be changed by setting the `-r` option. Both search term and directory name are required,
+
+#### Pulling from individual sources
+
+Data can be pulled from each source individually by importing the ingestion module. 
+
+##### Wikipedia
+
+Grabs up to the desired number of results (defined by results parameter) for the specified search term (term) and puts them in the specified directory (data_dir). **update when wikipedia ingest updated to exclude reference/notes section**
+
+```
+import ingestion
+
+wiki_search = ingestion.wikipedia_ingest
+wiki_search.get_wikipedia_pages(term, data_dir, results)
+```
+
+##### Medical abstracts
+Grabs up to the desired number of results (defined by results paramter) for the specified search term (term) and puts them in the specified directory (data_dir).
+
+This will search three journal sites with STEM articles:
+
+* [Arxiv](https://arxiv.org/)
+
+* [PubMed](http://www.ncbi.nlm.nih.gov/pubmed)
+
+* [Medline](http://www.mrc-lmb.cam.ac.uk/genomes/madanm/pres/pubmed1.htm) (via [biopython package](http://biopython.org/DIST/docs/api/Bio.Entrez-module.html))
 
 
 ```
-python fun_3000/ingestion/wikipedia_ingest.py -s search_term
+import ingestion
+
+med_search = ingestion.med_abstract_ingest
+med_search.get_medical_abstracts(term, data_dir, results)
 ```
 
-Optionally, you can specifiy a directory name where the data will be stored (by default, the script will use your search term as a directory name):
+##### Medical textbooks
+
+This imports two texts into the specified directory:
+
+* [Gray's Anatomy](ttps://archive.org/stream/GraysAnatomy40thEd_201403/Gray%27s%20Anatomy%20-%2040th%20Ed_djvu.txt)
+
+* [Stedman's Medical Dictionary](https://archive.org/stream/cu31924052393315/cu31924052393315_djvu.txt)
 
 ```
-python fun_3000/ingestion/wikipedia_ingest.py -s search_term -d data_dir
+import ingestion
+
+book_grab = ingestion.med_textbook_ingest
+book_grab.get_books(directory)
+```
+
+##### Ontologies
+
+**Laura can elaborate on this**
+
+```
+import ingestion
+
+ontology_grab = ingestion.ingest_ontologies
+ontology_grab.ingest_and_wrangle_owls(directory)
 ```
 
 ### To generate data-folds
@@ -60,6 +120,21 @@ where:
 * d is the data folder
 
 * s is the random seed
+
+#### Cleaning text
+
+There are several functions called during the generate folds process before and after the sentences are tokenized to remove HTML and Latex code, formatting, headers, and other potentially bothersome elements from the text.
+
+Full list of stuff that is removed:
+
+* Remove all html tags {<-->)
+* Remove all latex ({--} and ${--})
+* Remove headers from wikipedia articles
+* Remove new lines and carriage returns (this messes up the tokenize script)
+* Remove all non-ascii characters (like copyright symbols)
+* Remove extraneous spaces (this also messes up the tokenize script)
+* Remove sentences less than 10 words long (or some length defined in parameter), that don't end with a period, don't start with a capital letter, or start with a number
+
 
 ### To create a model:
 
