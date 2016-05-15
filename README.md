@@ -10,7 +10,7 @@ The ingestion module pulls ontologies along with text from several sources and s
 #### Using the controller script
 
 ```
-python fun_3000/get_corpus.py -s search_term -d run_1 
+python fun_3000/get_corpus.py -s path_to_search_file -d run_1 
 
 ```
 
