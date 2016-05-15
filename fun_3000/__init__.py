@@ -1,1 +1,3 @@
-from fun_3000 import word2vec
+import ingestion
+import wrangling
+import word2vec
