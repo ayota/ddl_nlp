@@ -13,26 +13,32 @@ The ingestion module pulls ontologies along with text from several sources and s
 python fun_3000/get_corpus.py -s path_to_search_file -d run_1 
 
 ```
+Where 'path_to_search_file' is a txt file with a list of terms you want to search.
 
-By default, the script fetches one result. This can be changed by setting the `-r` option. Both search term and directory name are required,
+By default, the script fetches the top result from each source ('wikipedia', 'arxiv', 'pub med' and 'medline') 
+for each term in the 'search_file'. This can be changed by setting the `-r` option. Both search term and directory 
+name are required.
 
 #### Pulling from individual sources
 
-Data can be pulled from each source individually by importing the ingestion module. 
+Data can be pulled from each source individually by importing the ingestion module and running the individual commands.
+get_corpus is simply a wrapper that grabs everything.
 
 ##### Wikipedia
 
-Grabs up to the desired number of results (defined by results parameter) for the specified search term (term) and puts them in the specified directory (data_dir). **update when wikipedia ingest updated to exclude reference/notes section**
+Grabs up to the desired number of results (defined by results parameter `-r`) for the specified search term (term) and 
+puts them in the specified directory (data_dir). **update when wikipedia ingest updated to exclude reference/notes section**
 
 ```
 import ingestion
 
 wiki_search = ingestion.wikipedia_ingest
-wiki_search.get_wikipedia_pages(term, data_dir, results)
+wiki_search.get_wikipedia_pages(term={some_term}, data_dir={data/some_run}, results= {some int})
 ```
 
 ##### Medical abstracts
-Grabs up to the desired number of results (defined by results paramter) for the specified search term (term) and puts them in the specified directory (data_dir).
+Grabs up to the desired number of results (defined by results parameter) for the specified search term (term) and puts 
+them in the specified directory (data_dir).
 
 This will search three journal sites with STEM articles:
 
@@ -47,7 +53,7 @@ This will search three journal sites with STEM articles:
 import ingestion
 
 med_search = ingestion.med_abstract_ingest
-med_search.get_medical_abstracts(term, data_dir, results)
+med_search.get_medical_abstracts(term={some_term}, data_dir={data/some_run}, results= {some int})
 ```
 
 ##### Medical textbooks
