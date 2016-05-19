@@ -159,6 +159,7 @@ def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
     :param seed: Any seed number for the split generator for the folds.
     :return:
     """
+    import pdb; pdb.set_trace()
     corpus = read_source(run_directory, source_type='corpus')
     
     if ontology_flag == 'True':
@@ -181,4 +182,4 @@ if __name__ == '__main__':
     parser.add_option('-l', '--sentence_length', dest='sentence_length', default=10, help="Specify the minimum length of a valid sentence. Shorter sentences will be thrown out of the corpus.")
     (opts, args) = parser.parse_args()
 
-    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, int(opts.sentence_length))
+    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, opts.sentence_length)
