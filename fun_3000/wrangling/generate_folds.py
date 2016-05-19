@@ -117,31 +117,29 @@ def store_file(folds_dict, input_data_dir):
 
         fold_number += 1
 
-def read_source(input_data_dir, source_type='corpus'):
+def read_source(run_directory, source_type):
     """
     Reads a set of source files in an input_data_dir and generates a single string from those input files.
-    :param input_data_dir: The subject name of the test. For example 'jazz' or 'medical', etc.
+    :param run_directory: The subject name of the test. For example 'run1' or 'medical', etc.
     :param source_type: Either 'corpus' or 'ontology'.
     :return:
     """
-    # Set data directory
+    # Figure out data directory
     current_dir = path.dirname(path.realpath(__file__))
     parent_dir = path.abspath(path.join(current_dir, '../..'))
 
     if source_type == 'corpus':
-        data_dir = path.join(parent_dir, 'data')
-    else:
-        data_dir = path.join(parent_dir, 'ontology')
-
-    this_model_dir = path.join(data_dir, input_data_dir)
+        data_dir = path.join(parent_dir, 'data', run_directory)
+    elif source_type == 'ontology':
+        data_dir = path.join(parent_dir, 'ontologies', run_directory)
 
     # Below grabs all of the files in the current model directory and builds a single string corpus out of them.  This
     # avoids the sub-directories if they exist.
     input_data = ''
-    if path.exists(this_model_dir):
-        for some_corpus_file in listdir(this_model_dir):
-            if path.isfile(path.join(this_model_dir, some_corpus_file)):
-                with open(path.join(this_model_dir, some_corpus_file),'rb') as infile:
+    if path.exists(data_dir):
+        for some_corpus_file in listdir(data_dir):
+            if path.isfile(path.join(data_dir, some_corpus_file)):
+                with open(path.join(data_dir, some_corpus_file),'rb') as infile:
                     new_file_data = infile.read()
                     input_data = ''.join((input_data, new_file_data))
 
@@ -152,35 +150,35 @@ def read_source(input_data_dir, source_type='corpus'):
         sys.exit(0)
 
 
-def run(input_data_dir, ontology_flag=False, k=5, seed=10, sentence_length=10):
+def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
     """
     Pulls the corpus and ontology if provided and builds k folds for test and train into the data directory.
-    :param input_data_dir:
+    :param run_directory:
     :param ontology_flag: If True then we are including an ontology.
     :param k: Number of folds
     :param seed: Any seed number for the split generator for the folds.
     :return:
     """
-    corpus = read_source(input_data_dir, source_type='corpus')
+    corpus = read_source(run_directory, source_type='corpus')
     
     if ontology_flag == 'True':
-        ontology = read_source(input_data_dir, source_type='ontology')
+        ontology = read_source(run_directory, source_type='ontology')
     else:
         ontology = ''
 
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k, seed=seed, min_sentence_length=sentence_length)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
-    store_file(folds_dict=final_splits, input_data_dir=input_data_dir)
+    store_file(folds_dict=final_splits, input_data_dir=run_directory)
 
 if __name__ == '__main__':
 
     parser = optparse.OptionParser()
-    parser.add_option('-d', '--data_dir', dest='input_data_dir', default='', help='Specify data directory')
+    parser.add_option('-d', '--run_directory', dest='run_directory', default='', help='Specify run directory name e.g. run1 for files in data/run1')
     parser.add_option('-k', '--folds', dest='k', default=3, help='Specify number of folds requested', type='int')
     parser.add_option('-o', '--ontology_flag', action='store_true', dest='ontology_flag', default=False, help='if specified, an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
     parser.add_option('-l', '--sentence_length', dest='sentence_length', default=10, help="Specify the minimum length of a valid sentence. Shorter sentences will be thrown out of the corpus.")
     (opts, args) = parser.parse_args()
 
-    run(opts.input_data_dir, opts.ontology_flag, opts.k, opts.seed, int(opts.sentence_length))
+    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, int(opts.sentence_length))
