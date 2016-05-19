@@ -74,6 +74,7 @@ def tokenize_sentences(corpus=None):
                     '|(?<=\.\)))' # or the valid punctuation .)
                     '\s' # and the cursor is at a space
                     # then split on this space as a new sentence.
+                    # this will also include the space in the split result; see https://docs.python.org/2/library/re.html#re.split
                     ,corpus)
 
 
