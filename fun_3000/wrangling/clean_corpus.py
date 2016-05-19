@@ -42,10 +42,10 @@ def bad_sentence(sentence, sent_len):
 def validate_sentences(sentences=None, sent_len=10):
     '''
     Iterates through list of sentences in corpus and removes those that start with lowercase letters or numbers, and that are less than a certain length.
-    :param sent_len: a list of sentences
-    :type sent_len: list
-    :param length: the minimum length for a sentence
-    :type length: int
+    :param sentences: a list of sentences
+    :type sentences: list
+    :param sent_len: the minimum length for a sentence
+    :type sent_len: int
     :return: list of sentences
     :rtype: list
     '''

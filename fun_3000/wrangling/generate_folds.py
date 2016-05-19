@@ -11,7 +11,7 @@ from sklearn.cross_validation import KFold
 from clean_corpus import clean_corpus, validate_sentences, tokenize_sentences
 
 
-def generate_word2vec_folds(corpus='Empty', folds=3, seed=10):
+def generate_word2vec_folds(corpus='Empty', folds=3, seed=10, min_sentence_length=10):
     '''
     Generates a series of text files that each represent a training or test split of the text data.  Since word2vec does
     not conduct any calculations that rely on interactions across sentence boundaries this cross-validation k-fold generator
@@ -25,7 +25,7 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10):
 
     tokenized_corpus= tokenize_sentences(cleaned_corpus) #split into sentences
 
-    tokenized_corpus= validate_sentences(tokenized_corpus, 10) #keep only sentences that are >= 10 words, start with capital
+    tokenized_corpus= validate_sentences(tokenized_corpus, min_sentence_length) #keep only sentences that are >= min_sentence length, start with capital
 
     tokenized_corpus=np.array(tokenized_corpus)
 
@@ -152,7 +152,7 @@ def read_source(input_data_dir, source_type='corpus'):
         sys.exit(0)
 
 
-def run(input_data_dir, ontology_flag=False, k=5, seed=10):
+def run(input_data_dir, ontology_flag=False, k=5, seed=10, sentence_length=10):
     """
     Pulls the corpus and ontology if provided and builds k folds for test and train into the data directory.
     :param input_data_dir:
@@ -168,7 +168,7 @@ def run(input_data_dir, ontology_flag=False, k=5, seed=10):
     else:
         ontology = ''
 
-    corpus_split=generate_word2vec_folds(corpus=corpus, folds=k)
+    corpus_split=generate_word2vec_folds(corpus=corpus, folds=k, seed=seed, min_sentence_length=sentence_length)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
     store_file(folds_dict=final_splits, input_data_dir=input_data_dir)
@@ -180,6 +180,7 @@ if __name__ == '__main__':
     parser.add_option('-k', '--folds', dest='k', default=3, help='Specify number of folds requested', type='int')
     parser.add_option('-o', '--ontology_flag', action='store_true', dest='ontology_flag', default=False, help='if specified, an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
+    parser.add_option('-l', '--sentence_length', dest='sentence_length', default=10, help="Specify the minimum length of a valid sentence. Shorter sentences will be thrown out of the corpus.")
     (opts, args) = parser.parse_args()
 
-    run(opts.input_data_dir, opts.ontology_flag, opts.k, opts.seed)
+    run(opts.input_data_dir, opts.ontology_flag, opts.k, opts.seed, int(opts.sentence_length))
