@@ -33,26 +33,31 @@ def bad_sentence(sentence, sent_len):
     :return True or False: True means sentence is bad
     :rtype: bool
     '''
-    words = len(sentence.split(' '))
-    if words < sent_len: return True
-    if sentence[0].islower(): return True
-    if sentence[0].isdigit(): return True
+    words = len(sentence.split())
+    if words < sent_len:
+        return True
+    elif sentence[0].islower():
+        return True
+    elif sentence[0].isdigit():
+        return True
+    return False
 
 
-def validate_sentences(sentences=None, sent_len=10):
+def validate_sentences(clean_sentences=None, sent_len=10):
     '''
-    Iterates through list of sentences in corpus and removes those that start with lowercase letters or numbers, and that are less than a certain length.
-    :param sentences: a list of sentences
-    :type sentences: list
+    Iterates through list of cleaned sentences in corpus and removes those that start with lowercase letters or numbers, and that are less than a certain length.
+    :param clean_sentences: a list of cleaned sentences
+    :type clean_sentences: list
     :param sent_len: the minimum length for a sentence
     :type sent_len: int
     :return: list of sentences
     :rtype: list
     '''
-    for index,text in enumerate(sentences):
-        sentences[index] = clean_corpus(text)
-        if bad_sentence(sentences[index], sent_len): sentences.pop(index)
-    return sentences
+    valid_sentences = []
+    for index,text in enumerate(clean_sentences):
+        if bad_sentence(text, sent_len) == False:
+            valid_sentences.append(text)
+    return valid_sentences
 
 
 def tokenize_sentences(corpus=None):
