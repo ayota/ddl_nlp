@@ -15,7 +15,7 @@ def save_wiki_text(wiki_search_term, storage_path):
     '''
 
     page = wpg(wiki_search_term)
-    
+
     logging.info('Saving data to: %s' % storage_path)
     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
         f_out.write(page.content)
