@@ -5,8 +5,8 @@ import optparse
 def clean_corpus(corpus):
     '''
     cleans out all non-ascii characters, newlines, carriage returns, wikipedia headers, other fun stuff
-    :param corpus: a string from a text file representing the corpus
-    :type corpus: str
+    :param corpus: a bytestream from a text file representing the corpus
+    :type corpus: bytearray, str or mixed strings and bytes
     :return: cleaned corpus string
     :rtype: str
     '''
@@ -46,12 +46,12 @@ def bad_sentence(sentence, sent_len):
 def validate_sentences(clean_sentences=None, sent_len=10):
     '''
     Iterates through list of cleaned sentences in corpus and removes those that start with lowercase letters or numbers, and that are less than a certain length.
-    :param clean_sentences: a list of cleaned sentences
-    :type clean_sentences: list
+    :param clean_sentences: a list of strings of clean sentences
+    :type clean_sentences: list[str]
     :param sent_len: the minimum length for a sentence
     :type sent_len: int
-    :return: list of sentences
-    :rtype: list
+    :return: list of strings of valid sentences that met our thresholds in this function
+    :rtype: list[str]
     '''
     valid_sentences = []
     for index,text in enumerate(clean_sentences):
@@ -66,7 +66,7 @@ def tokenize_sentences(corpus=None):
     :param corpus: a string from a text file representing the corpus
     :type corpus: str
     :return: list of strings, each sentence separated in the list
-    :rtype: list
+    :rtype: list[str]
     '''
     return re.split('(?<!\w\.\w\.)' # if not preceeded by an acronym like A.C.A.
                     '(?<![A-Z][A-Za-z]\.)' # and if not preceeded by an abbreviation like Ca. or CA.
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     cleaned_corpus = clean_corpus(corpus)
     tokenized_corpus = tokenize_sentences(cleaned_corpus)
-    cleaned_sentences = validate_sentences(tokenized_corpus, int(opts.sentence_length))
+    cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
 
     with open(opts.output_file, "wb") as f:
         blob = ' '.join(cleaned_sentences)

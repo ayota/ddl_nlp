@@ -15,9 +15,15 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10, min_sentence_lengt
     '''
     Generates a series of text files that each represent a training or test split of the text data.  Since word2vec does
     not conduct any calculations that rely on interactions across sentence boundaries this cross-validation k-fold generator
-    splits the text by sentence and then chooses random sentences together into the same corpus.  This fold generator also
-    assumes the original corpus and any ontological additions have not been added to the same file yet.  It expects both.
-    The training set includes all of the ontological additions, not just a random subset.
+    splits the text by sentence and then chooses random sentences together into the same corpus.
+    :param corpus: entire corpus to work on
+    :type corpus: bytearray, str, or mixed bytes and str
+    :param folds: how many train/test folds to make
+    :type folds: int
+    :param seed: random seed for the random number used to make the folds
+    :type seed: int
+    :param min_sentence_length: minimum sentence length that is considered valid
+    :type min_sentence_length: int
     :return:
     '''
     #tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
@@ -43,7 +49,6 @@ def collapse_corpus_sentence_list(folds_dict):
     '''
     Collapses the lists of sentences back down into a single string
     :param folds_dict: the dictionary that includes lists of sentences for every training, and test instance.
-    :param ontology_text: The raw ontology text.
     :return:
     '''
     train_text = [' '.join(list(row['train'])) for row in folds_dict]
@@ -57,8 +62,12 @@ def collapse_corpus_sentence_list(folds_dict):
 def append_ontology_text(folds_dict, ontology_text):
     '''
     Appends the ontology text to the end of each training instance.
+    :param folds_dict: a fold dict containing keys 'train' and 'test' which have values of strings
+    :type folds_dict: dict{'train': str, 'test': str}
     :param ontology_text: Raw string of constructed ontology sentences.
-    :return:
+    :type ontology_text: str
+    :return: folds_dict with ontology content appended to the training instance
+    :rtype: dict{'train': str, 'test': str}
     '''
 
     if ontology_text is not None:
@@ -67,12 +76,14 @@ def append_ontology_text(folds_dict, ontology_text):
 
     return folds_dict
 
-def store_file(folds_dict, input_data_dir):
+def store_file(folds_dict, run_directory):
     '''
     Derive the location to save the resulting json file that includes all of the fold definitions.  Each fold generates a
       seperate directory depending on the number of folds chosen.  Within each fold directory is a train and test directory.
       Files are stored in all proper locations after parsing a dict with all of the data in it..
-    :param folds_dict:
+    :param folds_dict: folds_dict with ontology content appended to the training instance
+    :type folds_dict: train and test split like dict{'train': str, 'test': str}
+    :param run_directory: directory to store the data named after the run e.g. 'run1' or 'jazz'
     :return:
     '''
     def gen_fold_file(fold, fold_number, fold_dir, portion='train'):
@@ -98,7 +109,7 @@ def store_file(folds_dict, input_data_dir):
 
     data_dir = path.join(parent_dir, 'data')
 
-    specific_data_dir = path.join(data_dir, input_data_dir)
+    specific_data_dir = path.join(data_dir, run_directory)
 
     if not path.exists(specific_data_dir):
         makedirs(specific_data_dir)
@@ -121,8 +132,11 @@ def read_source(run_directory, source_type):
     """
     Reads a set of source files in an input_data_dir and generates a single string from those input files.
     :param run_directory: The subject name of the test. For example 'run1' or 'medical', etc.
+    :type run_directory: str
     :param source_type: Either 'corpus' or 'ontology'.
-    :return:
+    :type source_type: str
+    :return: concatenated string of all the files in the source directory
+    :rtype: str
     """
     # Figure out data directory
     current_dir = path.dirname(path.realpath(__file__))
@@ -146,7 +160,7 @@ def read_source(run_directory, source_type):
         return input_data
 
     else:
-        print 'Could not find the data/ontology directory: ', this_model_dir
+        print 'Could not find the data/ontology directory: ', data_dir
         sys.exit(0)
 
 
@@ -159,7 +173,6 @@ def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
     :param seed: Any seed number for the split generator for the folds.
     :return:
     """
-    import pdb; pdb.set_trace()
     corpus = read_source(run_directory, source_type='corpus')
     
     if ontology_flag == 'True':
@@ -170,7 +183,7 @@ def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k, seed=seed, min_sentence_length=sentence_length)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
     final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
-    store_file(folds_dict=final_splits, input_data_dir=run_directory)
+    store_file(folds_dict=final_splits, run_directory=run_directory)
 
 if __name__ == '__main__':
 
