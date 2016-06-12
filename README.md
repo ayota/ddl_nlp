@@ -73,7 +73,37 @@ book_grab.get_books(directory)
 
 ##### Ontologies
 
-**Laura can elaborate on this**
+Ontologies are formal specifications of linguistic relationships designed by domain experts and linguists, usually described on the web using XML-based syntaxes RDF ([w3c](https://www.w3.org/RDF/)) or its superset OWL and OWL derivatives ([w3c](https://www.w3.org/2001/sw/wiki/OWL)). Ontologies are intended to build on one another to enforce a common vocabulary. For example a popular base ontology is FOAF (aka friend-of-a-friend ([wikpedia](https://en.wikipedia.org/wiki/FOAF_(ontology))), which provides a common vocabulary for describing relationships and attributes between and about people. Ontologies are also intended to be accessible over the [Semantic Web/web of data](https://www.w3.org/2013/data/) and thus should live and refer to each other on the web using URIs accessible over http.
+
+Ontologies can be separated into what we here refer to as 'base ontologies' or 'instance ontolgoies'. Base ontologies represent common vocabularies relevant to describe relationships and attributes for entities within a specific domain (such as FOAF, or in our case for fun_3000, OGMS (Ontology for General Medical Science, [ref](https://bioportal.bioontology.org/ontologies/OGMS)). Instance ontologies use the structure provided by the base ontology to link language instances heirarchically back with a base ontology so that certain logical conclusions can be made across instances using the base ontology as a backbone. For example, knowing that A is a type of B and B is a type of C, logically you can conclude that A is a type of C; specifying the relationships between A, B, and C in instance ontologies using the relations and attribute of a base ontology allow such logical conclusions to be made against the web of data.
+
+For fun_3000, URLs to RDF/XML MIME-type ontology files are specified in the `[Ontologies]` section of the configuration file `fun_3000/ingestion/ingestion_config.conf`. In this conf file you must describe:
+
+- `source_ontology`: in our terminology, this is the base ontology our instance ontologies will derive meaning from
+- `source_ontology_fallback`: a private host of the source ontology in case of internet problems
+- any number of instance ontologies that utilize structure from the `source_ontology` that are specified with a variable name that uniquely identifies them and the URL to their location
+
+Ontologies are ingested and parsed into a natural language form via the module `fun_3000/ingestion/ingest_ontologies.py`. This script pulls the source ontology and the instance ontologies into a single graph and parses out sentences based on the human labels of entities that are joined by the `rdf:type` relationship ([w3c](https://www.w3.org/TR/rdf-schema/#ch_type)). This script makes the assumption that a valid English human language equivalent for the `rdf:type` relationship is the verb "is". For example, the OWL snippet:
+
+```
+<owl:NamedIndividual rdf:about="http://purl.obolibrary.org/obo/OBI_0000759"><!-- Illumina -->
+        <rdf:type rdf:resource="http://purl.obolibrary.org/obo/OBI_0000245"/><!-- organization -->
+        <rdf:type>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/RO_0000087"/><!-- has role -->
+                <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/OBI_0000571"/><!-- manufacturer role -->
+            </owl:Restriction>
+        </rdf:type>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Illumina</rdfs:label>
+        <obo:IAO_0000111 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Illumina</obo:IAO_0000111>
+        <obo:IAO_0000117 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Philippe Rocca-Serra</obo:IAO_0000117>
+        <obo:IAO_0000114 rdf:resource="http://purl.obolibrary.org/obo/IAO_0000123"/><!-- metadata incomplete -->
+    </owl:NamedIndividual>
+```
+
+would convert to the sentence "Illumina is organization".
+
+To run the ontology ingestion in a script, use the `ingest_and_wrangle_owls` module with the following syntax:
 
 ```
 import ingestion
@@ -81,6 +111,8 @@ import ingestion
 ontology_grab = ingestion.ingest_ontologies
 ontology_grab.ingest_and_wrangle_owls(directory)
 ```
+
+You can also run the ontology ingestion module directly as a script; see usage notes in the script itself.
 
 ### To generate data-folds
 

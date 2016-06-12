@@ -71,6 +71,12 @@ def ingest_and_wrangle_owls(data_directory):
 
 
 if __name__=='__main__':
+    """Usage:
+
+    python ingest_ontologies.py -d run1
+
+    """
+
     parser = optparse.OptionParser()
     parser.add_option('-d', '--data_directory', dest='data_directory', default=None, help='Specify a directory name to save ontology data in e.g. run1 to put in /ddl_nlp/ontologies/run1/')
     (opts, args) = parser.parse_args()
