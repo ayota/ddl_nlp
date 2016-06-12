@@ -15,6 +15,10 @@ python fun_3000/get_corpus.py -s path_to_search_file -d run_1
 ```
 Where 'path_to_search_file' is a txt file with a list of terms you want to search.
 
+NOTE: If the -s option is not used and you have no target file to pull terms from it will pull from a function
+the standard UMLS synonyms. Bottom line: For our purposes a source file for terms is not needed unless you
+want to do something custom.
+
 By default, the script fetches the top result from each source ('wikipedia', 'arxiv', 'pub med' and 'medline') 
 for each term in the 'search_file'. This can be changed by setting the `-r` option. Both search term and directory 
 name are required.
