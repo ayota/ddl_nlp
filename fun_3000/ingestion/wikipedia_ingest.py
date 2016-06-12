@@ -1,4 +1,4 @@
-from wikipedia import page as wpg, search as src
+from wikipedia import page as wpg, search as src, exceptions
 from os import path, pardir, makedirs
 
 import logging
@@ -13,12 +13,16 @@ def save_wiki_text(wiki_search_term, storage_path):
     :param wiki_search_term: unique term referring a particular wiki page
     :param storage_path: where to save the file
     '''
-
-    page = wpg(wiki_search_term)
-    
-    logging.info('Saving data to: %s' % storage_path)
-    with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
-        f_out.write(page.content)
+    try:
+        page = wpg(wiki_search_term)
+        logging.info('Saving data to: %s' % storage_path)
+        with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
+            f_out.write(page.content)
+    except exceptions.DisambiguationError as e:
+        print e.options
+        logging.warning('Term disambiguation error on %s. Term file not saved.' % wiki_search_term)
+    except exceptions.PageError:
+        logging.warning('Page does not exist for %s. Term file not saved.' % wiki_search_term)
 
 def get_wikipedia_pages(search_term, data_directory, results=1):
     '''

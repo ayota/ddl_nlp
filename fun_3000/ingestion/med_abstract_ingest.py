@@ -33,13 +33,17 @@ def pub_get_papers(id_list):
     :param id_list: List of ids
     :return abstracts: Abstracts for given doc ids
     '''
-
+    abstracts = None
     ids = ','.join(id_list)
     Entrez.email = 'ecayoz@gmail.com'
     handle = Entrez.efetch(db='pubmed',
                            retmode='xml',
                            id=ids)
-    abstracts = Entrez.read(handle)
+    try:
+        abstracts = Entrez.read(handle)
+    except:
+        logging.warning('Abstracts not returned from medline. for id: %s' % ids)
+
     return abstracts
 
 def fetch_pubmed(search_term, results):
@@ -49,20 +53,23 @@ def fetch_pubmed(search_term, results):
     :param results: int number of results to return
     :return: list of abstracts
     '''
-
     ids = pub_get_ids(search_term, results)
     id_list = ids['IdList']
+
     papers = pub_get_papers(id_list)
     abstracts = []
 
-    for index, paper in enumerate(papers):
-        try:
-            summary = paper['MedlineCitation']['Article']['Abstract'].values()
-        except KeyError:
-            logging.info('Document does not have abstract.')
+    if papers:
+        for index, paper in enumerate(papers):
+            summary = None # Assign summary to none because we want to check if the variable has a value assigned later on.
+            try:
+                summary = paper['MedlineCitation']['Article']['Abstract'].values()
+            except KeyError:
+                logging.info('Document does not have abstract.')
 
-        for item in summary:
-            abstracts.extend(item)
+            if summary: #Only if there are values for the Abstract to we extend the data in abstracts.
+                for item in summary:
+                    abstracts.extend(item)
 
     return abstracts
 

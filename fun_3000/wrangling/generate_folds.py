@@ -1,6 +1,5 @@
 from sklearn.cross_validation import KFold
 from os import path, makedirs, listdir
-import re
 import numpy as np
 import optparse
 import sys

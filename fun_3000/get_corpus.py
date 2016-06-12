@@ -2,7 +2,7 @@ import logging
 import ingestion
 import optparse
 import csv
-
+from evaluation.similarity_evaluation import FEATURE_BUILDER
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -76,7 +76,12 @@ if __name__ == '__main__':
 	results = opts.results
 	directory = opts.directory
 
-	search_terms = import_terms(search_file)
+	if search_file:
+		search_terms = import_terms(search_file)
+	else:
+		fb = FEATURE_BUILDER()
+		search_terms = fb.get_words_list()
+
 	fetch_corpus(search_terms, directory, results)
 	fetch_books(directory)
 	fetch_ontologies(directory)
