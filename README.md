@@ -3,9 +3,27 @@ Repo for DDL research lab project.
 
 # Usage
 
-### Ingestion (optional)
+- Ingestion
+  - Using the controller script
+  - Pulling from individual sources
+    - Wikipedia
+    - Medical abstracts
+    - Medical textbooks
+    - Ontologies
+- Model Building
+    - To generate data-folds
+    - Cleaning text
+    - To create a model
+    - Example using Wikipedia Data
+- Running a model building pipeline with Drake
+    - Step 1: Configuration
+    - Step 2: Execution
+- Contributing Workflow
+    
 
-The ingestion module pulls ontologies along with text from several sources and stores them in two files (one for ontologies, one for text). There is a controller script, `get_corpus.py`, which pulls data from all sources based on a set of search terms submitted via csv.
+## Ingestion (optional)
+
+To build a fun_3000 model off of a base corpus and ontologies you must first ingest both types of data for a given run. The ingestion module pulls ontologies and text from sources defined in `ingestion/ingestion_config.conf` off of keywords defined by a provided text file or, by default, our keyword selection in `data/eval_words`. There is a controller script, `get_corpus.py`, which pulls ontologies and text from all sources based on a set of search terms submitted via csv.
 
 #### Using the controller script
 
@@ -114,9 +132,11 @@ ontology_grab.ingest_and_wrangle_owls(directory)
 
 You can also run the ontology ingestion module directly as a script; see usage notes in the script itself.
 
+## Model Building
+
 ### To generate data-folds
 
-You can generate a folder structure that will contain prepared training and test sets for k number of folds.
+You can use the `wrangling/generate_folds.py` script to generate a folder structure that will contain prepared training and test sets for k number of folds.
 
 The folder structure follows the following pattern UNDER the data directory
 ```
@@ -144,10 +164,10 @@ The script also expects ontology generated files to exist in a SISTER (to data) 
 
 In the example above only 2 folds were generated.
 
-To generate the proper files and folder structure do the following:
+For example, to generate the proper files and folder structure do the following:
 
 ```
-python fun_3000/wrangling/generate_folds.py -d '{SOME_RUN}' -k 3 -o True -s 10
+python fun_3000/wrangling/generate_folds.py -d {SOME_RUN} -k 3 -o True -s 10
 ```
 where: 
 
@@ -192,11 +212,11 @@ python fun_3000/word2vec.py -h
 ```
 *Note*: if no model name is specified, output name will be <data_dir>_1_train.model (using the example above).
 
-# Example using Wikipedia data
+#### Example using Wikipedia data
 
 Let's say you wanted to train a Word2Vec model with the "Jazz" wikipedia page as your corpus:
 
-### Step 1: Retrieve wikipedia page content
+###### Step 1: Retrieve wikipedia page content
 
 ```
 python fun_3000/ingestion/wikipedia_ingest.py -s '{SOME_RUN}'
@@ -206,14 +226,14 @@ Confirm that the text content was downloaded and stored under data/{SOME_RUN}/mo
 
 (Alternatively: you can manually create a directory under data/ and placing all corpus files within it)
 
-### Step 2: Create a Word2Vec model
+###### Step 2: Create a Word2Vec model
 
 ```
 python fun_3000/word2vec.py -i {SOME_RUN}
 ```
 Confirm that the model was created and saved under models/{SOME_RUN}/{SOME_RUN}.model
 
-### Step 3: Explore the model
+###### Step 3: Explore the model
 
 Within a python REPL:
 
@@ -224,29 +244,35 @@ Within a python REPL:
     [('sound', 0.9113765358924866), ('well', 0.9058974981307983), ('had', 0.9046300649642944), ('bass', 0.9037381410598755), ('In', 0.9003950953483582), ('blues', 0.9001777768135071), ('on', 0.8995728492736816), ('at', 0.8993135690689087), ('rather', 0.8992522954940796), ('such', 0.8990519046783447)]
 ```
 
-#Workflow
-We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
+# Running a model building pipeline with Drake
 
-# Running a pipeline with Drake
+You can run the model building pipeline with Drake instead of calling each module by hand. The model building pipeline assumes you have already ingested your corpus and ontologies per the structures defined above.
 
 Requirement: Make sure Drake is installed. See [here](https://github.com/Factual/drake) for installation instructions.
 
 ### Step 1: Configuration
 
-Place a blank file named workflow.start in whichever data directory you want to use for the pipeline run. (IMPORTANT: if you end up changing your corpus file(s), you'll need to remove the workflow.start file and recreate it)
-
 Open the file named Drakefile and change any of the configuration settings at the top of the file. They correspond to the same options that the word2vec.py script supports.
+
+Drake can be smart about what to (re)run based on the presence and/or timestamps on files generated as artifacts by each of the Drakfile steps which are stored in the `workflow/` directory. See the [Drake README for more information on how to specify reruns from the Drake CLI](https://github.com/Factual/drake).
 
 ### Step 2: Execution
 
 All you need to do is run the following from the main directory:
 
 ```
-drake -w Drakefile
+drake
 ```
+
+or
+
+```
+drake +...
+```
+to force rerun (`+`) all steps (`...`).
 
 Review the steps and enter 'y' to accept them.
 
-### Post-Execution
 
-Drake will create a workflow/ directory to store some progress files and track step completion. If you wish to re-start the pipeline from a particular step, delete the corresponding .complete file from the workflow/ directory.
+# Contributing Workflow
+We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
