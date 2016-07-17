@@ -14,3 +14,14 @@ workflow/*
 
 .drake/
 drake.log
+
+.ipynb_checkpoints/
+fun_3000/.ipynb_checkpoints/
+fun_3000/evaluation/.ipynb_checkpoints/
+fun_3000/evaluation/classification.py
+fun_3000/evaluation/eval_tests.ipynb
+fun_3000/evaluation/perplexity.py
+fun_3000/evaluation/similarity.py
+fun_3000/evaluation/test.tex
+fun_3000/evaluation/testmodel.py
+test data set.ipynb

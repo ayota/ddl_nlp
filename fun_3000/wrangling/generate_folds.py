@@ -1,12 +1,10 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
+from sklearn.cross_validation import KFold
+from os import path, makedirs, listdir
+import re
+import numpy as np
 import optparse
 import sys
-from os import path, makedirs, listdir
 
-import numpy as np
-from sklearn.cross_validation import KFold
 
 from clean_corpus import clean_corpus, validate_sentences, tokenize_sentences
 
@@ -26,6 +24,9 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10, min_sentence_lengt
     :type min_sentence_length: int
     :return:
     '''
+
+    # Tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
+    tokenized_corpus=tokenize_sentences(corpus)
     #tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
     cleaned_corpus= clean_corpus(corpus) #remove random characters from corpus
 
