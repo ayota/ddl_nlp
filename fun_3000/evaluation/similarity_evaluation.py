@@ -3,6 +3,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor as rfr
 import numpy as np
 from sklearn.cross_validation import cross_val_score
+import optparse
+import time
+import csv
 
 class FEATURE_BUILDER():
     '''
@@ -183,6 +186,26 @@ def full_cross_validated_score(training_run, folds):
     '''
     scores = []
     for fold in range(1,folds+1):
-        score.append(build_train_and_score(training_run, str(fold)))
+        scores.append(build_train_and_score(training_run, str(fold)))
 
     return sum(scores) / float(len(scores))
+
+if __name__ == '__main__':
+    parser = optparse.OptionParser()
+    parser.add_option('-r', '--training_run', dest='train_run', default='', help='Specify training run to test.')
+    parser.add_option('-f', '--folds', dest='k', default=3, help='Specify number of folds in training run', type='int')
+    parser.add_option('-o', '--output_file', dest='output', default='scores.csv',help='File to store model score for run.')
+    (opts, args) = parser.parse_args()
+
+    score_final = full_cross_validated_score(opts.train_run, opts.k)
+
+    with open(opts.output, 'a') as output_file:
+        output_writer = csv.writer(output_file)
+        output_writer.writerow([opts.train_run, score_final, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y")])
+
+
+
+    
+
+
+
