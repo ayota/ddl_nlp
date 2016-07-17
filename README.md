@@ -1,6 +1,10 @@
 # ddl_nlp: Ontology Assisted NLP. 
 Repo for DDL research lab project.  The codebase takes care of all ingestion, training, and evaluation for ontology 
 assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline AFTER ingestion through evaluation.
+There are essentially 2 main components that need to be run to run the test; Ingestion and the Drake Workflow. Ingestion
+is a simple command line wrapper that grabs the data we want to use as outr corpus and ontology.  The Drake workflow
+conducts all munging, machine learning, and evaluation activities.  So essentially, once you run the ingestion once you can just
+continue to tweak your ml paramaters and re-run the drake workflow to run the entire process (no need to ingest multiple times).
 
 ### WORKFLOW: Drake
 We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
