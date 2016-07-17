@@ -1,13 +1,53 @@
-# ddl_nlp
-Repo for DDL research lab project.
+# ddl_nlp: Ontology Assisted NLP. 
+Repo for DDL research lab project.  The codebase takes care of all ingestion, training, and evaluation for ontology 
+assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline AFTER ingestion through evaluation.
 
-# Usage
+### WORKFLOW: Drake
+We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
 
-### Ingestion (optional)
+#### Running a pipeline with Drake
 
-The ingestion module pulls ontologies along with text from several sources and stores them in two files (one for ontologies, one for text). There is a controller script, `get_corpus.py`, which pulls data from all sources based on a set of search terms submitted via csv.
+Requirement: Make sure Drake is installed. See [here](https://github.com/Factual/drake) for installation instructions.
 
-#### Using the controller script
+##### Step 1: Configuration
+
+Place a blank file named workflow.start in whichever data directory you want to use for the pipeline run. (IMPORTANT: if you end up changing your corpus file(s), you'll need to remove the workflow.start file and recreate it)
+
+Open the file named Drakefile and change any of the configuration settings at the top of the file. They correspond to the same options that the word2vec.py script supports.
+
+##### Step 2: Execution
+
+All you need to do is run the following from the main directory:
+
+```
+drake -w Drakefile
+```
+
+Review the steps and enter 'y' to accept them.
+
+### Post-Execution
+
+Drake will create a workflow/ directory to store some progress files and track step completion. If you wish to re-start the pipeline from a particular step, delete the corresponding .complete file from the workflow/ directory.
+
+
+
+### Ingestion
+
+The ingestion module pulls ontologies along with text from several sources and stores them in two files (one for 
+ontologies, one for text). There is a controller script, `get_corpus.py`, which pulls data from all sources based on a 
+set of search terms submitted via csv.
+
+#### Ingestion: Controller script
+
+Required inputs when running the get_corpus script are described below.
+
+-s = Specify the filename for list of search terms; default is med_terms.csv.
+-r = Specify the number of search results to be returned by abstract queries. By default, the script fetches the top 
+result from each source ('wikipedia', 'arxiv', 'pub med' and 'medline') for each term in the 'search_file'. This can be 
+changed by setting the `-r` option. Both search term and directory name are required.
+-d = Specify a directory for corpus text and ontology.  This is the specific name of the test we are running. example: 'run_2'
+
+An example of how to run the ingestion controller script is shown below:
 
 ```
 python fun_3000/get_corpus.py -s path_to_search_file -d run_1 
@@ -15,14 +55,18 @@ python fun_3000/get_corpus.py -s path_to_search_file -d run_1
 ```
 Where 'path_to_search_file' is a txt file with a list of terms you want to search.
 
-By default, the script fetches the top result from each source ('wikipedia', 'arxiv', 'pub med' and 'medline') 
-for each term in the 'search_file'. This can be changed by setting the `-r` option. Both search term and directory 
-name are required.
-
 #### Pulling from individual sources
 
 Data can be pulled from each source individually by importing the ingestion module and running the individual commands.
-get_corpus is simply a wrapper that grabs everything.
+get_corpus is simply a wrapper that grabs everything.  You can also just run the ingestion scripts individually from the
+command line.
+
+The options of scripts to run from the command line are below:
+
+ingestion/med_abstract_ingest.py
+ingestion/wikipedia_ingest.py
+ingestion/med_textbook_ingest.py
+ingestion/ingest_ontologies.py
 
 ##### Wikipedia
 
@@ -224,29 +268,16 @@ Within a python REPL:
     [('sound', 0.9113765358924866), ('well', 0.9058974981307983), ('had', 0.9046300649642944), ('bass', 0.9037381410598755), ('In', 0.9003950953483582), ('blues', 0.9001777768135071), ('on', 0.8995728492736816), ('at', 0.8993135690689087), ('rather', 0.8992522954940796), ('such', 0.8990519046783447)]
 ```
 
-#Workflow
-We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
-
-# Running a pipeline with Drake
-
-Requirement: Make sure Drake is installed. See [here](https://github.com/Factual/drake) for installation instructions.
-
-### Step 1: Configuration
-
-Place a blank file named workflow.start in whichever data directory you want to use for the pipeline run. (IMPORTANT: if you end up changing your corpus file(s), you'll need to remove the workflow.start file and recreate it)
-
-Open the file named Drakefile and change any of the configuration settings at the top of the file. They correspond to the same options that the word2vec.py script supports.
-
-### Step 2: Execution
-
-All you need to do is run the following from the main directory:
+### Evaluation
+Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Our
+scores are stored in scores.csv in the base directory.  Every time you run th workflow this csv will be appended to.  There
+is a column that provides the run name in the csv and the data and time.
 
 ```
-drake -w Drakefile
+python fun_3000/evaluation/similarity_evaluation.py -r 'run_1' -f 3 -o scores.csv
 ```
+where:
 
-Review the steps and enter 'y' to accept them.
-
-### Post-Execution
-
-Drake will create a workflow/ directory to store some progress files and track step completion. If you wish to re-start the pipeline from a particular step, delete the corresponding .complete file from the workflow/ directory.
+-r is the name of the run
+-f is the number of folds, defaults to 3
+-o is the output file, defaults to scores.csv
