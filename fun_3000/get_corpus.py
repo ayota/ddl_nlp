@@ -6,6 +6,7 @@ import csv
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
+
 def import_terms(filename):
 	'''
 	Imports list of terms from csv, returns Python list
@@ -20,6 +21,7 @@ def import_terms(filename):
 			search_terms.extend(row)
 			
 	return search_terms
+
 
 def fetch_corpus(search_terms, data_dir, results):
 	'''
@@ -40,6 +42,7 @@ def fetch_corpus(search_terms, data_dir, results):
 		med_search.get_medical_abstracts(term, data_dir, results)
 		logging.info('Fetched %s term medical abstract artifacts.' % term)
 
+
 def fetch_books(directory):
 	'''
 	:param directory: filename for medical text directory
@@ -50,6 +53,7 @@ def fetch_books(directory):
 	book_grab = ingestion.med_textbook_ingest
 	book_grab.get_books(directory)
 
+
 def fetch_ontologies(directory):
 	"""
 	Based on source and instance ontologies specified in ingestion/ingestion_config.conf, generate sentences from those ontologies
@@ -58,6 +62,7 @@ def fetch_ontologies(directory):
 
 	ontology_grab = ingestion.ingest_ontologies
 	ontology_grab.ingest_and_wrangle_owls(directory)
+
 
 if __name__ == '__main__':
 	"""
