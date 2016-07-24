@@ -16,15 +16,15 @@ continue to tweak your ml paramaters and re-run the drake workflow to run the en
     - [Medical textbooks](#medical-textbooks)
     - [Ontologies](#ontologies)
 - [Model Building](#model-building)
-    - [To generate data-folds](#to-generated-data-folds)
+    - [To generate data-folds](#to-generate-data-folds)
     - [Cleaning text](#cleaning-text)
     - [To create a model](#to-create-a-model)
     - [Evaluating a model](#evaluating-a-model)
-- [Full manual pipeline example using only Wikipedia data](#full-manual-pipeline-example-using-only-wikipedia-data)
+- [Full manual pipeline example using Wikipedia data](#full-manual-pipeline-example-using-wikipedia-data)
     - Step 1: Retrieve wikipedia page content
     - Step 2: Create a Word2Vec model
     - Step 3: Explore the model
-    - Step 4:
+    - Step 4: Evaluation
 - [Running a model building pipeline with Drake](#running-a-model-building-pipeline-with-drake)
     - Step 1: Configuration
     - Step 2: Execution
