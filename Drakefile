@@ -11,6 +11,7 @@ SEED=10
 ; General Configuration
 INPUT_DATA_DIR=run1
 SEARCH_RESULTS=5
+SCORING_OUTPUT_FILE=scores.csv
 
 ; Don't change this EV..ER
 FUN_3000_DIR=fun_3000
@@ -30,4 +31,4 @@ workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
 
 ; Run Evaluation
 workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
-    echo 'Evaluation TBD.' && touch $OUTPUT
+    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] && touch $OUTPUT
