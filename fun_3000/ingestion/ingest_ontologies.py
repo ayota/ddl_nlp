@@ -21,7 +21,6 @@ def ingest_and_wrangle_owls(data_directory):
     output_dir = path.join("ontologies", data_directory)
     if not path.exists(output_dir):
         makedirs(output_dir)
-    import pdb; pdb.set_trace()
     # get source and instance ontologies from config
     from ConfigParser import SafeConfigParser
     CONFIG_PARSER = SafeConfigParser()
