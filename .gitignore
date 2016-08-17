@@ -5,7 +5,7 @@ data/*/ontology.txt
 fun_3000/ingestion/*.txt
 
 *.txt
-*.csv
+
 *.pyc
 
 *.model*
