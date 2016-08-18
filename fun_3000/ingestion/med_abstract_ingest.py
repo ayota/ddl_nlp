@@ -58,11 +58,10 @@ def fetch_pubmed(search_term, results):
     for index, paper in enumerate(papers):
         try:
             summary = paper['MedlineCitation']['Article']['Abstract'].values()
+            for item in summary:
+                abstracts.extend(item)
         except KeyError:
             logging.info('Document does not have abstract.')
-
-        for item in summary:
-            abstracts.extend(item)
 
     return abstracts
 
