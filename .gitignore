@@ -1,20 +1,29 @@
 .DS_Store
 .idea/
 *.owl
-data/*/ontology.txt
-fun_3000/ingestion/*.txt
 
+
+# corpus files
+data/*/*.txt
+data/*/*/test
+data/*/*/train
+ontologies/
+
+# python files
 *.txt
 
 *.pyc
 
+# gensim files
 *.model*
 
+# drake artifacts
 workflow/*
-
 .drake/
 drake.log
+scores.csv
 
+# personal ipython notebooks
 .ipynb_checkpoints/
 fun_3000/.ipynb_checkpoints/
 fun_3000/evaluation/.ipynb_checkpoints/

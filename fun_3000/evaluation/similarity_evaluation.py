@@ -16,7 +16,7 @@ class FEATURE_BUILDER():
     '''
     def __init__(self):
         # Grabs the csv with the medical coder Mean similarity scores between various medical terms.
-        self.medical_coder_similarities = pd.read_csv('data/evaluation/UMLS_synonyms/UMNSRS_similarity.csv')
+        self.medical_coder_similarities = pd.read_csv('data/evaluation/fake_response.csv')
 
     def get_words_list(self):
         """

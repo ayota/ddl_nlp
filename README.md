@@ -1,11 +1,40 @@
-# ddl_nlp
-Repo for DDL research lab project.
+# ddl_nlp: Ontology Assisted NLP. 
+Repo for DDL research lab project.  The codebase takes care of all ingestion, training, and evaluation for ontology 
+assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline AFTER ingestion through evaluation.
+There are essentially 2 main components that need to be run to run the test; Ingestion and the Drake Workflow. Ingestion
+is a simple command line wrapper that grabs the data we want to use as our corpus and ontology.  The Drake workflow
+conducts all munging, machine learning, and evaluation activities.  So essentially, once you run the ingestion once you can just
+continue to tweak your ml parameters and re-run the drake workflow to run the entire process (no need to ingest multiple times).
 
-# Usage
+#Usage
 
-### Ingestion (optional)
+- [Ingestion](#ingestion)
+  - [Using the controller script](#using-the-controller-script)
+  - [Pulling from individual sources](#pulling-from-individual-sources)
+    - [Wikipedia](#wikipedia)
+    - [Medical abstracts](#medical-abstracts)
+    - [Medical textbooks](#medical-textbooks)
+    - [Ontologies](#ontologies)
+- [Model Building](#model-building)
+    - [To generate data-folds](#to-generate-data-folds)
+    - [Cleaning text](#cleaning-text)
+    - [To create a model](#to-create-a-model)
+    - [Evaluating a model](#evaluating-a-model)
+- [Full manual pipeline example using Wikipedia data](#full-manual-pipeline-example-using-wikipedia-data)
+    - Step 1: Retrieve wikipedia page content
+    - Step 2: Create a Word2Vec model
+    - Step 3: Explore the model
+    - Step 4: Evaluation
+- [Running a model building pipeline with Drake](#running-a-model-building-pipeline-with-drake)
+    - Step 1: Configuration
+    - Step 2: Execution
+- [Contributing Workflow](#contributing-workflow)
 
-The ingestion module pulls ontologies along with text from several sources and stores them in two files (one for ontologies, one for text). There is a controller script, `get_corpus.py`, which pulls data from all sources based on a set of search terms submitted via csv.
+
+## Ingestion
+**Optional**
+
+To build a fun_3000 model off of a base corpus and ontologies you must first ingest both types of data for a given run. The ingestion module pulls ontologies and text from sources (defined in `ingestion/ingestion_config.conf`) off of keywords )defined by a provided text file or, by default, our keyword selection in `data/eval_words`). There is a controller script, `get_corpus.py`, which pulls ontologies and text from all sources based on a set of search terms submitted via csv.
 
 #### Using the controller script
 
@@ -13,7 +42,12 @@ The ingestion module pulls ontologies along with text from several sources and s
 python fun_3000/get_corpus.py -s path_to_search_file -d run_1 
 
 ```
-Where 'path_to_search_file' is a txt file with a list of terms you want to search.
+
+With the options 
+
+- `-s` option is the name of a txt file with a list of terms you want to search.
+- `-d` option is the data directory for this test run, for example 'run1'
+- `-r` option is the number of search results to be returned per search term
 
 By default, the script fetches the top result from each source ('wikipedia', 'arxiv', 'pub med' and 'medline') 
 for each term in the 'search_file'. This can be changed by setting the `-r` option. Both search term and directory 
@@ -22,7 +56,16 @@ name are required.
 #### Pulling from individual sources
 
 Data can be pulled from each source individually by importing the ingestion module and running the individual commands.
-get_corpus is simply a wrapper that grabs everything.
+get_corpus is simply a wrapper that grabs everything.  You can also just run the ingestion scripts individually from the
+command line.
+
+The options of scripts to run from the command line are below:
+
+
+- From wikipedia with `ingestion/wikipedia_ingest.py`
+- Rrom medical abstracts with `ingestion/med_abstract_ingest.py`
+- From medical textbooks with `ingestion/med_textbook_ingest.py`
+- From ontologies on the web with `ingestion/ingest_ontologies.py`
 
 ##### Wikipedia
 
@@ -114,9 +157,11 @@ ontology_grab.ingest_and_wrangle_owls(directory)
 
 You can also run the ontology ingestion module directly as a script; see usage notes in the script itself.
 
+## Model Building
+
 ### To generate data-folds
 
-You can generate a folder structure that will contain prepared training and test sets for k number of folds.
+You can use the `wrangling/generate_folds.py` script to generate a folder structure that will contain prepared training and test sets for k number of folds.
 
 The folder structure follows the following pattern UNDER the data directory
 ```
@@ -151,13 +196,10 @@ python fun_3000/wrangling/generate_folds.py -d '{SOME_RUN}' -k 3 -o True -s 10
 ```
 where: 
 
-* k is the number of folds you want to generate
-
-* o if we are including an ontology in this run this should be true.
-
-* d is the data folder
-
-* s is the random seed
+- `-k` is the number of folds you want to generate
+- `-o` is a boolean flag indicating whether we are including an ontology in this run.
+- `-d` is the data directory for this test run, for example 'run1'
+- `-s` is the random seed
 
 #### Cleaning text
 
@@ -192,7 +234,23 @@ python fun_3000/word2vec.py -h
 ```
 *Note*: if no model name is specified, output name will be <data_dir>_1_train.model (using the example above).
 
-# Example using Wikipedia data
+
+### Evaluating a model
+Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Our
+scores are stored in scores.csv in the base directory.  Every time you run th workflow this csv will be appended to.  There
+is a column that provides the run name in the csv and the data and time.
+
+```
+python fun_3000/evaluation/similarity_evaluation.py -r 'run_1' -f 3 -o scores.csv
+```
+where:
+
+- `-r` is the name of the run, i.e. 'run1'
+- `-f` is the number of folds that run's corpus was split into, defaults to 3
+- `-o` is the output file, defaults to scores.csv
+
+
+## Full manual pipeline example using Wikipedia data
 
 Let's say you wanted to train a Word2Vec model with the "Jazz" wikipedia page as your corpus:
 
@@ -224,29 +282,45 @@ Within a python REPL:
     [('sound', 0.9113765358924866), ('well', 0.9058974981307983), ('had', 0.9046300649642944), ('bass', 0.9037381410598755), ('In', 0.9003950953483582), ('blues', 0.9001777768135071), ('on', 0.8995728492736816), ('at', 0.8993135690689087), ('rather', 0.8992522954940796), ('such', 0.8990519046783447)]
 ```
 
-#Workflow
-We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
+### Step 4: Evaluation
 
-# Running a pipeline with Drake
+TODO: Write this...
+
+# Running a model building pipeline with Drake
+
+You can run the model building pipeline with Drake instead of calling each module by hand. The model building pipeline assumes you have already ingested your corpus and ontologies per the structures defined above.
 
 Requirement: Make sure Drake is installed. See [here](https://github.com/Factual/drake) for installation instructions.
 
 ### Step 1: Configuration
 
-Place a blank file named workflow.start in whichever data directory you want to use for the pipeline run. (IMPORTANT: if you end up changing your corpus file(s), you'll need to remove the workflow.start file and recreate it)
-
 Open the file named Drakefile and change any of the configuration settings at the top of the file. They correspond to the same options that the word2vec.py script supports.
+
+Drake can be smart about what to (re)run based on the presence and/or timestamps on files generated as artifacts by each of the Drakfile steps which are stored in the `workflow/` directory. See the [Drake README for more information on how to specify reruns from the Drake CLI](https://github.com/Factual/drake).
 
 ### Step 2: Execution
 
 All you need to do is run the following from the main directory:
 
 ```
-drake -w Drakefile
+drake
 ```
+
+or
+
+```
+drake +...
+```
+to force rerun (`+`) all steps (`...`)
+
+or
+
+```
+drake =workflow/03.evaluation.complete
+```
+to run without dependency checking (`=`) a specified target (i.e. `workflow/03.evaluation.complete`).
 
 Review the steps and enter 'y' to accept them.
 
-### Post-Execution
-
-Drake will create a workflow/ directory to store some progress files and track step completion. If you wish to re-start the pipeline from a particular step, delete the corresponding .complete file from the workflow/ directory.
+## Contributing Workflow
+We maintain both a master and a develop branch.  All features are to be built as a branch off of develop and pull requests (pr) will be made into develop.  Only major releases will be pulled into the master branch.
