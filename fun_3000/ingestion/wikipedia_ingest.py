@@ -1,4 +1,5 @@
 from wikipedia import page as wpg, search as src
+from wikipedia.exceptions import PageError, DisambiguationError
 from os import path, pardir, makedirs
 
 import logging
@@ -13,7 +14,7 @@ def save_wiki_text(wiki_search_term, storage_path):
     :param wiki_search_term: unique term referring a particular wiki page
     :param storage_path: where to save the file
     '''
-    page = wpg(wiki_search_term)
+    page = wpg(title=wiki_search_term, auto_suggest=False)
 
     logging.info('Saving data to: %s' % storage_path)
     with codecs.open(storage_path, 'w+', 'utf-8') as f_out:
@@ -40,17 +41,23 @@ def get_wikipedia_pages(search_term, data_directory, results=1):
     if not path.exists(model_data_dir):
         makedirs(model_data_dir)
 
-    if search_term is not None:
-        # get all the related pages by searching for the base term
-        wiki_results = src(search_term, results)
+    try:
+        if search_term is not None:
+            # get all the related pages by searching for the base term
+            wiki_results = src(search_term, results, suggestion=False)
 
-        # for each related page, save the page's content
-        for result in wiki_results:
-            logging.info('Retrieving "%s" page from Wikipedia.' % (result))
-            local_file_path = model_data_dir + '/' + result.replace('/', '_') + '.txt'
-            save_wiki_text(search_term, local_file_path)
-    else:
-        logging.info('You have not specified a search term!')
+            # for each related page, save the page's content
+            for result in wiki_results:
+                logging.info('Retrieving "%s" page from Wikipedia.' % (result))
+                local_file_path = model_data_dir + '/' + result.replace('/', '_') + '.txt'
+                save_wiki_text(search_term, local_file_path)
+                logging.info('Fetched %s term wiki artifacts.' % search_term)
+        else:
+            logging.info('You have not specified a search term!')
+    except (PageError, DisambiguationError) as e:
+        print dir(e)
+        logging.info("Skipping download for term %s, received error %s" %(search_term, type(e)))
+
 
 if __name__ == '__main__':
 
