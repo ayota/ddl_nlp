@@ -183,6 +183,7 @@ def get_medical_abstracts(search_term, data_directory, results=1):
         medline_url =  medline_search_url.replace('<SEARCH_TERM>', search_term).replace('<RESULTS>', str(results))
         abstracts_medline = fetch_medline(medline_url.rstrip())
         save_file(local_file_path, abstracts_medline)
+        logging.info('Fetched %s term medical abstract artifacts.' % search_term)
 
     else:
         logging.info('You have not specified a search term!')

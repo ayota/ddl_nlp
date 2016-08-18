@@ -38,9 +38,8 @@ def fetch_corpus(search_terms, data_dir, results):
 
 	for term in search_terms:
 		wiki_search.get_wikipedia_pages(term, data_dir, results)
-		logging.info('Fetched %s term wiki artifacts.' % term)
 		med_search.get_medical_abstracts(term, data_dir, results)
-		logging.info('Fetched %s term medical abstract artifacts.' % term)
+
 
 
 def fetch_books(directory):
