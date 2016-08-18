@@ -55,7 +55,6 @@ def get_wikipedia_pages(search_term, data_directory, results=1):
         else:
             logging.info('You have not specified a search term!')
     except (PageError, DisambiguationError) as e:
-        print dir(e)
         logging.info("Skipping download for term %s, received error %s" %(search_term, type(e)))
 
 
