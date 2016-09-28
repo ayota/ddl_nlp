@@ -2,6 +2,7 @@ import logging
 import ingestion
 import optparse
 import csv
+import traceback
 
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
@@ -39,15 +40,15 @@ def fetch_corpus(search_terms, data_dir, results):
 	for term in search_terms:
 		try:
 			wiki_search.get_wikipedia_pages(term, data_dir, results)
-		except Exception as e:
-			# just bail if we get an error
-			print e
+		except:
+			# just bail if we get an error and log it
+			logging.info(traceback.print_exc())
 			pass
 		try:
 			med_search.get_medical_abstracts(term, data_dir, results)
-		except Exception as e:
-			# just bail if we get an error
-			print e
+		except:
+			# just bail if we get an error and log it
+			logging.info(traceback.print_exc())
 			pass
 
 
