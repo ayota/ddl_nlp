@@ -42,13 +42,15 @@ def fetch_corpus(search_terms, data_dir, results):
 			wiki_search.get_wikipedia_pages(term, data_dir, results)
 		except:
 			# just bail if we get an error and log it
-			logging.info(traceback.print_exc())
+			logging.warn("Failed wikipedia retrieval for %s" %term)
+			logging.warn(traceback.print_exc())
 			pass
 		try:
 			med_search.get_medical_abstracts(term, data_dir, results)
 		except:
 			# just bail if we get an error and log it
-			logging.info(traceback.print_exc())
+			logging.warn("Failed medical abstracts retrieval for %s" % term)
+			logging.warn(traceback.print_exc())
 			pass
 
 
