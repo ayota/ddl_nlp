@@ -37,8 +37,18 @@ def fetch_corpus(search_terms, data_dir, results):
 	med_search = ingestion.med_abstract_ingest
 
 	for term in search_terms:
-		wiki_search.get_wikipedia_pages(term, data_dir, results)
-		med_search.get_medical_abstracts(term, data_dir, results)
+		try:
+			wiki_search.get_wikipedia_pages(term, data_dir, results)
+		except Exception as e:
+			# just bail if we get an error
+			print e
+			pass
+		try:
+			med_search.get_medical_abstracts(term, data_dir, results)
+		except Exception as e:
+			# just bail if we get an error
+			print e
+			pass
 
 
 
