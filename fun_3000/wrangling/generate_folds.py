@@ -101,7 +101,7 @@ def store_file(folds_dict, run_directory):
             makedirs(portion_dir)
         fold_file = path.join(portion_dir, portion + '.txt')
 
-        with open(fold_file,'wb') as outfile:
+        with open(fold_file,'w') as outfile:
             outfile.write(fold[portion])
 
     current_dir = path.dirname(path.realpath(__file__))
