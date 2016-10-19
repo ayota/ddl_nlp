@@ -154,7 +154,7 @@ def read_source(run_directory, source_type):
     if path.exists(data_dir):
         for some_corpus_file in listdir(data_dir):
             if path.isfile(path.join(data_dir, some_corpus_file)):
-                with open(path.join(data_dir, some_corpus_file),'rb') as infile:
+                with open(path.join(data_dir, some_corpus_file),'r') as infile:
                     new_file_data = infile.read()
                     input_data = ''.join((input_data, new_file_data))
 
