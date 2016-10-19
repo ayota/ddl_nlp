@@ -10,7 +10,7 @@ def clean_corpus(corpus):
     :return: cleaned corpus string
     :rtype: str
     '''
-    corpus = corpus.decode(encoding='ascii', errors='ignore')  # force drop all non-ascii characters like copyright symbols
+    corpus = corpus.encode(encoding='ascii', errors='ignore').decode(encoding='ascii', errors='ignore')  # force drop all non-ascii characters like copyright symbols
     corpus = re.sub(r'<.*?>', ' ', corpus)  # html tags
     corpus = re.sub(r'{.*?}', ' ', corpus)  # anything between brackets, from latex in medical abstracts
     corpus = re.sub(r'${.*?}', ' ', corpus)  # any line leading content between brackets, from latex in medical abstracts
