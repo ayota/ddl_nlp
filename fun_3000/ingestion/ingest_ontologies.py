@@ -66,7 +66,7 @@ def ingest_and_wrangle_owls(data_directory):
         except: #if does not exist then log it!
             logging.warning('Could not locate %s' % location)
 
-        print logging.info('Ontology %s of %s complete.' % (str(progress), len(other_ontologies)))
+        print(logging.info('Ontology %s of %s complete.' % (str(progress), len(other_ontologies))))
 
 
 if __name__=='__main__':

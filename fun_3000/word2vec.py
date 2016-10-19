@@ -103,7 +103,7 @@ def run_model_fold(input_data_dir, model_data_dir, this_model_dir, parallel_work
     else:
         model_path = this_model_dir + '/' + model_name + '.model'
 
-    print model_path
+    print(model_path)
     model.save(model_path)
 
 if __name__ == '__main__':

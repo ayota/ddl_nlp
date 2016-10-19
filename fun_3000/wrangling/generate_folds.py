@@ -161,7 +161,7 @@ def read_source(run_directory, source_type):
         return input_data
 
     else:
-        print 'Could not find the data/ontology directory: ', data_dir
+        print('Could not find the data/ontology directory: ', data_dir)
         sys.exit(0)
 
 
