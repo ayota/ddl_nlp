@@ -5,6 +5,7 @@ import optparse
 import logging
 import time
 from os import path, listdir
+import io
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -15,7 +16,8 @@ class MySentences(object):
 
     def __iter__(self):
         for input_file_name in listdir(self.dirname):
-            for line in open(path.join(self.dirname, input_file_name)):
+            for line in io.open(path.join(self.dirname, input_file_name), 'rb'):
+                # explicitly loading as binary in python 2x and 3x. should at this point be ascii encoded
                 yield line.split()                                             
 
 def timeit(method):

@@ -15,7 +15,7 @@ def import_terms(filename):
 	'''
 	search_terms = []
 
-	with open(filename, 'r') as f:
+	with io.open(filename, 'rb') as f:
 		reader = csv.reader(f)
 		for row in reader:
 			search_terms.extend(row)

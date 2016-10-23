@@ -6,6 +6,7 @@ from sklearn.cross_validation import cross_val_score
 import optparse
 import time
 import csv
+import io
 
 class FEATURE_BUILDER():
     '''
@@ -199,7 +200,7 @@ if __name__ == '__main__':
 
     score_final = full_cross_validated_score(opts.train_run, opts.k)
 
-    with open(opts.output, 'a') as output_file:
+    with io.open(opts.output, 'at') as output_file:
         output_writer = csv.writer(output_file)
         output_writer.writerow([opts.train_run, score_final, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y")])
 

@@ -1,6 +1,6 @@
 from sklearn.cross_validation import KFold
 from os import path, makedirs, listdir
-import re
+import io
 import numpy as np
 import optparse
 import sys
@@ -101,7 +101,7 @@ def store_file(folds_dict, run_directory):
             makedirs(portion_dir)
         fold_file = path.join(portion_dir, portion + '.txt')
 
-        with open(fold_file,'w') as outfile:
+        with io.open(fold_file,'wt') as outfile:
             outfile.write(fold[portion])
 
     current_dir = path.dirname(path.realpath(__file__))
@@ -154,8 +154,11 @@ def read_source(run_directory, source_type):
     if path.exists(data_dir):
         for some_corpus_file in listdir(data_dir):
             if path.isfile(path.join(data_dir, some_corpus_file)):
-                with open(path.join(data_dir, some_corpus_file),'r') as infile:
+                with io.open(path.join(data_dir, some_corpus_file),'rb') as infile:
+                    # read as bytes. should be utf-8 but we have had corrupted or utf-16 before
                     new_file_data = infile.read()
+                    # force decode to ascii, dropping errors
+                    new_file_data = new_file_data.decode(encoding='ascii', errors='ignore')
                     input_data = ''.join((input_data, new_file_data))
 
         return input_data

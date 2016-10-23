@@ -3,6 +3,7 @@ from copy import copy
 from os import path, pardir, makedirs
 import optparse
 import logging
+import io
 
 def ingest_and_wrangle_owls(data_directory):
     """
@@ -58,7 +59,7 @@ def ingest_and_wrangle_owls(data_directory):
                             FILTER (isIRI(?o)).
                             ?o rdfs:label ?label} """
             # write it down
-            with open(path.join(output_dir, name+".txt"), "w") as writer:
+            with io.open(path.join(output_dir, name+".txt"), "wt") as writer:
                 for row in g.query(query):
                     # save these triples somewhere
                     writer.write("{s} {p} {o}\n".format(s=row[0], p="is", o=row[1]))

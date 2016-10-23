@@ -1,5 +1,6 @@
 import re
 import optparse
+import io
 
 
 def clean_corpus(corpus):
@@ -86,13 +87,14 @@ if __name__ == '__main__':
     parser.add_option('-s', '--min_sentence_length', dest='sentence_length', default=10, help="Specify minimum sentence word length.")
     (opts, args) = parser.parse_args()
 
-    with open(opts.input_file, "r") as f:
+    with io.open(opts.input_file, "rb") as f:
+        # expecting binary or mixed binary/text
         corpus = f.read()
 
     cleaned_corpus = clean_corpus(corpus)
     tokenized_corpus = tokenize_sentences(cleaned_corpus)
     cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
 
-    with open(opts.output_file, "w") as f:
+    with io.open(opts.output_file, "wt") as f:
         blob = ' '.join(cleaned_sentences)
         f.write(blob)
