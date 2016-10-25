@@ -284,7 +284,39 @@ Within a python REPL:
 
 ### Step 4: Evaluation
 
-TODO: Write this...
+The resulting model is evaluated by fitting a random forest regressor to predict a human-determined rating of similarity for two words using their respective word vectors as features in the model.
+
+#### Inputs
+
+
+| Parameter (short) | Parameter (long) | Default values | Description |
+|---    |---    |---    |---    |
+| -r | -training_run | No default | Name of training run being evaluated |
+| -f | -folds | 3 | Number of folds in training run |
+| -e | -eval_file | 'data/evaluation/UMNSRS_similarity_evalfile.csv' | Path to file containing baseline data for evaluation task |
+| -t |  -target | 'Mean' |  Column name of target (response) variable in evaluation file |
+| -v | -vars | ['Term1', 'Term2'] | List of columns containing the two words to compare |
+| -o | -output | 'scores.csv' | Path to file to store model score for the run |
+
+#### Evaluation files
+
+The evaluation task is structured to compare the similarities of word pairs deduced via their word vectors to some human-created evaluation of similarity between the same two words. We use the distance between these two measures as a proxy for word vector quality.
+
+Thus, the evaluation framework requires a file of word comparisions evaluated by experts. We've utilized files from the (University of Minnesota Pharmacy Informatics Lab)[http://rxinformatics.umn.edu/SemanticRelatednessResources.html] (:heart: love them!), which provides assessments of word similarities on a continuous scale based on the expertise of physicians and medical coders. Several files available on the  would fit the evaluation framework, and how to use these is highlighted in the table below.
+
+All files are located in this repo in the data/evaluation directory.
+
+| Filename | Target column | Term 1 column | Term 2 column | Source | Notes |
+| UMNSRS_similarity_evalfile.csv | Mean | Term1 | Term2 | (Medical Residents Similarity Set (UMNSRS-Similarity))[http://rxinformatics.umn.edu/data/UMNSRS_similarity.csv] | **This is the default for the evaluation task.** A set of 566 UMLS concept pairs manually rated for semantic similarity using a continuous response scale. |
+| MiniMayoSRS.csv | Coders OR Physicians | TERM1 | TERM2 | (Medical Coders High Reliability Subs))[http://rxinformatics.umn.edu/data/MiniMayoSRS.csv] | A subset of 29 medical concept pairs manually rater by medical coders for semantic relatedenss with high inter-rater agreement. |
+
+#### Scoring function
+
+The `SIMILARITY_PREDICTOR` class trains a random forest regressor to predict the similarity of two input words using their word vectors as inputs and the human-determined score from the evaluation file as the target.
+
+#### Output
+
+The resulting score is the average of R^2 values across all training folds. It is output to a general `scores.csv` file in the main ddl_nlp directory, along with the training run, time, and data to allow for easy comparison across experiments.
 
 # Running a model building pipeline with Drake
 
