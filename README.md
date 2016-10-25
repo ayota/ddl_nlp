@@ -302,13 +302,14 @@ The resulting model is evaluated by fitting a random forest regressor to predict
 
 The evaluation task is structured to compare the similarities of word pairs deduced via their word vectors to some human-created evaluation of similarity between the same two words. We use the distance between these two measures as a proxy for word vector quality.
 
-Thus, the evaluation framework requires a file of word comparisions evaluated by experts. We've utilized files from the (University of Minnesota Pharmacy Informatics Lab)[http://rxinformatics.umn.edu/SemanticRelatednessResources.html] (:heart: love them!), which provides assessments of word similarities on a continuous scale based on the expertise of physicians and medical coders. Several files available on the  would fit the evaluation framework, and how to use these is highlighted in the table below.
+Thus, the evaluation framework requires a file of word comparisions evaluated by experts. We've utilized files from the [University of Minnesota Pharmacy Informatics Lab][http://rxinformatics.umn.edu/SemanticRelatednessResources.html] , which provides assessments of word similarities on a continuous scale based on the expertise of physicians and medical coders. Several files available on the  would fit the evaluation framework, and how to use these is highlighted in the table below.
 
 All files are located in this repo in the data/evaluation directory.
 
 | Filename | Target column | Term 1 column | Term 2 column | Source | Notes |
-| UMNSRS_similarity_evalfile.csv | Mean | Term1 | Term2 | (Medical Residents Similarity Set (UMNSRS-Similarity))[http://rxinformatics.umn.edu/data/UMNSRS_similarity.csv] | **This is the default for the evaluation task.** A set of 566 UMLS concept pairs manually rated for semantic similarity using a continuous response scale. |
-| MiniMayoSRS.csv | Coders OR Physicians | TERM1 | TERM2 | (Medical Coders High Reliability Subs))[http://rxinformatics.umn.edu/data/MiniMayoSRS.csv] | A subset of 29 medical concept pairs manually rater by medical coders for semantic relatedenss with high inter-rater agreement. |
+|---    |---    |---    |---    |---    |---    |
+| UMNSRS_similarity_evalfile.csv | Mean | Term1 | Term2 | [Medical Residents Similarity Set (UMNSRS-Similarity)][http://rxinformatics.umn.edu/data/UMNSRS_similarity.csv] | **This is the default for the evaluation task.** A set of 566 UMLS concept pairs manually rated for semantic similarity using a continuous response scale. |
+| MiniMayoSRS.csv | Coders OR Physicians | TERM1 | TERM2 | [Medical Coders High Reliability Subs)][http://rxinformatics.umn.edu/data/MiniMayoSRS.csv] | A subset of 29 medical concept pairs manually rater by medical coders for semantic relatedenss with high inter-rater agreement. |
 
 #### Scoring function
 
