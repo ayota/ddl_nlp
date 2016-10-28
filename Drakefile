@@ -32,4 +32,4 @@ workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
 
 ; Run Evaluation
 workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
-    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] && touch $OUTPUT
+    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER] && touch $OUTPUT
