@@ -133,6 +133,9 @@ def run(run_directory, corpus_filename="output.txt", ontology_flag=False, k=5, s
     # figure out where the corpus file is. should be in ddl_nlp/data/{run_directory}/{corpus_filename}
     absolute_corpus_filename = path.join(PARENT_DIR, 'data', run_directory, corpus_filename)
     with io.open(absolute_corpus_filename, "rt") as f:
+        # TODO: right now this reads the entire corpus into a list at once
+        # we probably want to change this into a generator later so we can stream this information
+        # but we have to address how to random sample a generator in generate_folds.py to do so
         corpus = []
         for line in f.readlines():
             corpus.append(line)

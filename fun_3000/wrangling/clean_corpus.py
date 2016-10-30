@@ -97,7 +97,8 @@ if __name__ == '__main__':
     if opts.run_directory:
         # specify the output file
         output_file = path.join(utils.PARENT_DIR, 'data', opts.run_directory, opts.output_file)
-        # clean all the files, compress them into a single file, write to output_file
+        # TODO: pulls entire directory of corpus data into a single string
+        # probably want to stream this instead l8r
         corpus = utils.read_source(opts.run_directory, source_type="corpus")
 
     cleaned_corpus = clean_corpus(corpus)
