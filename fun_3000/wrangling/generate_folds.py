@@ -25,7 +25,6 @@ def generate_word2vec_folds(corpus=[], folds=3, seed=10, min_sentence_length=10)
     '''
 
     tokenized_corpus=np.array(corpus)
-    import pdb;pdb.set_trace()
 
     number_of_sentences=len(tokenized_corpus)
 
