@@ -1,21 +1,20 @@
-from sklearn.cross_validation import KFold
-from os import path, makedirs, listdir
-import re
-import numpy as np
+import io
 import optparse
-import sys
+from os import path, makedirs
+
+import numpy as np
+from sklearn.cross_validation import KFold
+
+from utils import PARENT_DIR, read_source
 
 
-from clean_corpus import clean_corpus, validate_sentences, tokenize_sentences
-
-
-def generate_word2vec_folds(corpus='Empty', folds=3, seed=10, min_sentence_length=10):
+def generate_word2vec_folds(corpus=[], folds=3, seed=10, min_sentence_length=10):
     '''
     Generates a series of text files that each represent a training or test split of the text data.  Since word2vec does
     not conduct any calculations that rely on interactions across sentence boundaries this cross-validation k-fold generator
     splits the text by sentence and then chooses random sentences together into the same corpus.
-    :param corpus: entire corpus to work on
-    :type corpus: bytearray, str, or mixed bytes and str
+    :param corpus: sequence of sentences representing entire corpus to work on
+    :type corpus: sequence
     :param folds: how many train/test folds to make
     :type folds: int
     :param seed: random seed for the random number used to make the folds
@@ -25,14 +24,8 @@ def generate_word2vec_folds(corpus='Empty', folds=3, seed=10, min_sentence_lengt
     :return:
     '''
 
-    #tokenize the corpus into sentences because we need to get a random sample of sentences from the resulting list.
-    cleaned_corpus= clean_corpus(corpus) #remove random characters from corpus
-
-    tokenized_corpus= tokenize_sentences(cleaned_corpus) #split into sentences
-
-    tokenized_corpus= validate_sentences(tokenized_corpus, min_sentence_length) #keep only sentences that are >= min_sentence length, start with capital
-
-    tokenized_corpus=np.array(tokenized_corpus)
+    tokenized_corpus=np.array(corpus)
+    import pdb;pdb.set_trace()
 
     number_of_sentences=len(tokenized_corpus)
 
@@ -127,52 +120,23 @@ def store_file(folds_dict, run_directory):
 
         fold_number += 1
 
-def read_source(run_directory, source_type):
-    """
-    Reads a set of source files in an input_data_dir and generates a single string from those input files.
-    :param run_directory: The subject name of the test. For example 'run1' or 'medical', etc.
-    :type run_directory: str
-    :param source_type: Either 'corpus' or 'ontology'.
-    :type source_type: str
-    :return: concatenated string of all the files in the source directory
-    :rtype: str
-    """
-    # Figure out data directory
-    current_dir = path.dirname(path.realpath(__file__))
-    parent_dir = path.abspath(path.join(current_dir, '../..'))
 
-    if source_type == 'corpus':
-        data_dir = path.join(parent_dir, 'data', run_directory)
-    elif source_type == 'ontology':
-        data_dir = path.join(parent_dir, 'ontologies', run_directory)
-
-    # Below grabs all of the files in the current model directory and builds a single string corpus out of them.  This
-    # avoids the sub-directories if they exist.
-    input_data = ''
-    if path.exists(data_dir):
-        for some_corpus_file in listdir(data_dir):
-            if path.isfile(path.join(data_dir, some_corpus_file)):
-                with open(path.join(data_dir, some_corpus_file),'rb') as infile:
-                    new_file_data = infile.read()
-                    input_data = ''.join((input_data, new_file_data))
-
-        return input_data
-
-    else:
-        print 'Could not find the data/ontology directory: ', data_dir
-        sys.exit(0)
-
-
-def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
+def run(run_directory, corpus_filename="output.txt", ontology_flag=False, k=5, seed=10, sentence_length=10):
     """
     Pulls the corpus and ontology if provided and builds k folds for test and train into the data directory.
     :param run_directory:
+    :param corpus_filename: filename inside the run directory that is where the cleaned corpus file is stored.
     :param ontology_flag: If True then we are including an ontology.
     :param k: Number of folds
     :param seed: Any seed number for the split generator for the folds.
     :return:
     """
-    corpus = read_source(run_directory, source_type='corpus')
+    # figure out where the corpus file is. should be in ddl_nlp/data/{run_directory}/{corpus_filename}
+    absolute_corpus_filename = path.join(PARENT_DIR, 'data', run_directory, corpus_filename)
+    with io.open(absolute_corpus_filename, "rt") as f:
+        corpus = []
+        for line in f.readlines():
+            corpus.append(line)
     
     if ontology_flag == 'True':
         ontology = read_source(run_directory, source_type='ontology')
@@ -188,10 +152,11 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser()
     parser.add_option('-d', '--run_directory', dest='run_directory', default='', help='Specify run directory name e.g. run1 for files in data/run1')
+    parser.add_option('-f', '--filename', dest='corpus_filename', default="output.txt", help="Specify the name of the cleaned corpus file generated from the data directory.")
     parser.add_option('-k', '--folds', dest='k', default=3, help='Specify number of folds requested', type='int')
     parser.add_option('-o', '--ontology_flag', action='store_true', dest='ontology_flag', default=False, help='if specified, an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
     parser.add_option('-l', '--sentence_length', dest='sentence_length', default=10, help="Specify the minimum length of a valid sentence. Shorter sentences will be thrown out of the corpus.")
     (opts, args) = parser.parse_args()
 
-    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, opts.sentence_length)
+    run(opts.run_directory, opts.corpus_filename, opts.ontology_flag, opts.k, opts.seed, opts.sentence_length)

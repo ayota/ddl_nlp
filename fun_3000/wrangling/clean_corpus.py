@@ -1,5 +1,7 @@
 import re
 import optparse
+import utils
+from os import path
 
 
 def clean_corpus(corpus):
@@ -83,16 +85,25 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-f', '--file', dest='input_file', default=None, help='Specify source data file')
     parser.add_option('-o', '--output_file', dest='output_file', default="output.txt", help="Specify output data file.")
+    parser.add_option('-d', '--run_directory', dest="run_directory", default=None, help="Specify the directory name where all ingested corpus files reside.")
     parser.add_option('-s', '--min_sentence_length', dest='sentence_length', default=10, help="Specify minimum sentence word length.")
     (opts, args) = parser.parse_args()
 
-    with open(opts.input_file, "rb") as f:
-        corpus = f.read()
+    if opts.input_file:
+        with open(opts.input_file, "rb") as f:
+            corpus = f.read()
+        # TODO: is this the default functionality we want for single files?
+        output_file = opts.output_file
+    if opts.run_directory:
+        # specify the output file
+        output_file = path.join(utils.PARENT_DIR, 'data', opts.run_directory, opts.output_file)
+        # clean all the files, compress them into a single file, write to output_file
+        corpus = utils.read_source(opts.run_directory, source_type="corpus")
 
     cleaned_corpus = clean_corpus(corpus)
     tokenized_corpus = tokenize_sentences(cleaned_corpus)
     cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
 
-    with open(opts.output_file, "wb") as f:
-        blob = ' '.join(cleaned_sentences)
+    with open(output_file, "wb") as f:
+        blob = '\n'.join(cleaned_sentences)
         f.write(blob)
