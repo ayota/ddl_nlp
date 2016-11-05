@@ -195,13 +195,14 @@ if __name__ == '__main__':
     parser.add_option('-r', '--training_run', dest='train_run', default='', help='Specify training run to test.')
     parser.add_option('-f', '--folds', dest='k', default=3, help='Specify number of folds in training run', type='int')
     parser.add_option('-o', '--output_file', dest='output', default='scores.csv',help='File to store model score for run.')
+    parser.add_option('-m', '--multiplier', dest='multiplier', help="What multiplier for the ontology boost was used for these models we are evaluating.")
     (opts, args) = parser.parse_args()
 
     score_final = full_cross_validated_score(opts.train_run, opts.k)
 
     with open(opts.output, 'a') as output_file:
         output_writer = csv.writer(output_file)
-        output_writer.writerow([opts.train_run, score_final, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y")])
+        output_writer.writerow([opts.train_run, score_final, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"),opts.multiplier])
 
 
 
