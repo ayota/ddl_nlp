@@ -60,18 +60,22 @@ def collapse_corpus_sentence_list(folds_dict):
 
     return folds_dict
 
-def append_ontology_text(folds_dict, ontology_text):
+def append_ontology_text(folds_dict, ontology_text, multiplier):
     '''
     Appends the ontology text to the end of each training instance.
-    :param folds_dict: a fold dict containing keys 'train' and 'test' which have values of strings
-    :type folds_dict: dict{'train': str, 'test': str}
+    :param folds_dict: a list of fold dicts, each fold dict containing keys 'train' and 'test' which have values of strings
+    :type folds_dict: list of dict{'train': str, 'test': str}
     :param ontology_text: Raw string of constructed ontology sentences.
     :type ontology_text: str
+    :param multiplier: how much to boost the ontology
+    :type multiplier: int
     :return: folds_dict with ontology content appended to the training instance
     :rtype: dict{'train': str, 'test': str}
     '''
 
     if ontology_text is not None:
+        ontology_text = ontology_text + ' '
+        ontology_text = ontology_text*multiplier
         for row_index in range(len(folds_dict)):
             folds_dict[row_index]['train'] = folds_dict[row_index]['train'] + ' ' + ontology_text
 
@@ -165,25 +169,26 @@ def read_source(run_directory, source_type):
         sys.exit(0)
 
 
-def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10):
+def run(run_directory, ontology_flag=False, k=5, seed=10, sentence_length=10, multiplier=1):
     """
     Pulls the corpus and ontology if provided and builds k folds for test and train into the data directory.
     :param run_directory:
     :param ontology_flag: If True then we are including an ontology.
     :param k: Number of folds
     :param seed: Any seed number for the split generator for the folds.
+    :param sentence_length: maximum number of words to consider a valid sentence to be
+    :param multiplier: int by which to multiply the availabile ontologies in each training fold
     :return:
     """
     corpus = read_source(run_directory, source_type='corpus')
-    
-    if ontology_flag == 'True':
+    if ontology_flag == True:
         ontology = read_source(run_directory, source_type='ontology')
     else:
         ontology = ''
 
     corpus_split=generate_word2vec_folds(corpus=corpus, folds=k, seed=seed, min_sentence_length=sentence_length)
     collapsed_lists=collapse_corpus_sentence_list(folds_dict=corpus_split)
-    final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology)
+    final_splits=append_ontology_text(folds_dict=collapsed_lists, ontology_text=ontology, multiplier=multiplier)
     store_file(folds_dict=final_splits, run_directory=run_directory)
 
 if __name__ == '__main__':
@@ -194,6 +199,7 @@ if __name__ == '__main__':
     parser.add_option('-o', '--ontology_flag', action='store_true', dest='ontology_flag', default=False, help='if specified, an ontology is provided')
     parser.add_option('-s', '--seed', dest='seed', default=100, help='Specify the seed for the random number generator', type='int')
     parser.add_option('-l', '--sentence_length', dest='sentence_length', default=10, help="Specify the minimum length of a valid sentence. Shorter sentences will be thrown out of the corpus.")
+    parser.add_option('-m', '--multiplier', dest='multiplier', default=1, type='int', help="How much you want to multiply the ontologies by in each fold.")
     (opts, args) = parser.parse_args()
 
-    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, opts.sentence_length)
+    run(opts.run_directory, opts.ontology_flag, opts.k, opts.seed, opts.sentence_length, opts.multiplier)
