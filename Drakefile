@@ -9,6 +9,7 @@ FOLDS=3
 SEED=10
 
 ; General Configuration
+MULTIPLIER=10
 INPUT_DATA_DIR=run1
 SEARCH_RESULTS=5
 SCORING_OUTPUT_FILE=scores.csv
@@ -23,7 +24,7 @@ workflow/00.setup.complete <- [shell]
 
 ; Clean data, generate folds, and place in the proper file structure.
 workflow/01.generate_folds.complete <- workflow/00.setup.complete [shell]
-    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] && touch $OUTPUT
+    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] -m $[MULTIPLIER] && touch $OUTPUT
 
 ; Run Gensim word2vec on each fold
 workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
@@ -31,4 +32,4 @@ workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
 
 ; Run Evaluation
 workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
-    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] && touch $OUTPUT
+    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER] && touch $OUTPUT
