@@ -15,6 +15,7 @@ continue to tweak your ml parameters and re-run the drake workflow to run the en
     - [Medical abstracts](#medical-abstracts)
     - [Medical textbooks](#medical-textbooks)
     - [Ontologies](#ontologies)
+   - [Cleaning Corpus](#cleaning-corpus)
 - [Model Building](#model-building)
     - [To generate data-folds](#to-generate-data-folds)
     - [Cleaning text](#cleaning-text)
@@ -157,6 +158,27 @@ ontology_grab.ingest_and_wrangle_owls(directory)
 
 You can also run the ontology ingestion module directly as a script; see usage notes in the script itself.
 
+#### Cleaning corpus
+
+To clean the corpus, use the `wrangling/clean_corpus.py` script. This script can clean a single file, or a directory's worth of files into a single, newline delimited text file that cleans up certain types of characters or phrases and splits the data into sentences of a minimum length.
+
+The common use will be to use this script to clean a directory's worth of files. In that case, the cleaned and concatednated file (by defualt `output.txt`) will be located in the same directory the individual files were in.
+
+##### Details on what is cleaned from the corpus
+
+There are several functions called during the generate folds process before and after the sentences are tokenized to remove HTML and Latex code, formatting, headers, and other potentially bothersome elements from the text.
+
+Full list of stuff that is removed, by default:
+
+* Remove all html tags {<-->)
+* Remove all latex ({--} and ${--})
+* Remove headers from wikipedia articles
+* Remove new lines and carriage returns (this messes up the tokenize script)
+* Remove all non-ascii characters (like copyright symbols)
+* Remove extraneous spaces (this also messes up the tokenize script)
+* Remove sentences less than 10 words long (or some length defined in parameter), that don't end with a period, don't start with a capital letter, or start with a number
+
+
 ## Model Building
 
 ### To generate data-folds
@@ -200,21 +222,6 @@ where:
 - `-o` is a boolean flag indicating whether we are including an ontology in this run.
 - `-d` is the data directory for this test run, for example 'run1'
 - `-s` is the random seed
-
-#### Cleaning text
-
-There are several functions called during the generate folds process before and after the sentences are tokenized to remove HTML and Latex code, formatting, headers, and other potentially bothersome elements from the text.
-
-Full list of stuff that is removed:
-
-* Remove all html tags {<-->)
-* Remove all latex ({--} and ${--})
-* Remove headers from wikipedia articles
-* Remove new lines and carriage returns (this messes up the tokenize script)
-* Remove all non-ascii characters (like copyright symbols)
-* Remove extraneous spaces (this also messes up the tokenize script)
-* Remove sentences less than 10 words long (or some length defined in parameter), that don't end with a period, don't start with a capital letter, or start with a number
-
 
 ### To create a model:
 
