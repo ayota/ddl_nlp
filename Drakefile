@@ -4,10 +4,6 @@
 PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
 
-; Folds Configuration
-FOLDS=3
-SEED=10
-
 ; General Configuration
 MULTIPLIER=10
 INPUT_DATA_DIR=run1
@@ -24,7 +20,7 @@ workflow/00.setup.complete <- [shell]
 
 ; Clean data, generate folds, and place in the proper file structure.
 workflow/01.generate_folds.complete <- workflow/00.setup.complete [shell]
-    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] -m $[MULTIPLIER] && touch $OUTPUT
+    python $[FUN_3000_DIR]/wrangling/boost_corpus_with_ontology.py -d $[INPUT_DATA_DIR] -m $[MULTIPLIER] && touch $OUTPUT
 
 ; Run Gensim word2vec on each fold
 workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
