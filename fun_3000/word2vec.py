@@ -9,6 +9,9 @@ from os import path, listdir
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
 class MySentences(object):
+    '''
+    This makes an iterable that streams sentences directly from file for word2vec.
+    '''
 
     def __init__(self, file_path):
         self.file_path = file_path
@@ -29,14 +32,14 @@ def timeit(method):
 
     return timed
 
-def run_model(data_directory, boosted_filename, parallel_workers=4, hidden_layer=100, context_window=5, model_name=None):
+def run_model(data_directory, boosted_filename, parallel_workers=4, hidden_layer=100, context_window=5):
     '''
     Build a word2vec model of the provided corpus.
     :param data_directory:
+    :param boosted_filename:
     :param parallel_workers:
     :param hidden_layer:
     :param context_window:
-    :param model_name:
     :return:
     '''
     # Set data directory
@@ -50,7 +53,7 @@ def run_model(data_directory, boosted_filename, parallel_workers=4, hidden_layer
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
     # Replace / with _ to prevent creation of unecessary directories, because this expects the fold structure
-    filename = data_directory.replace('/', '_')
+    filename = data_directory.replace('/', '_') # Elaine doesn't think we need this, because reasons.
     logging.info(filename)
     model_path = abs_path_to_data_directory + '/' + filename +'.model'
 
@@ -62,7 +65,7 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-d', '--data_directory', dest='data_directory', default='generic', help='Specify local corpus directory')
     parser.add_option('-f', '--filename', dest='input_filename', default='1_boost_output.txt',
-                      help="Specify the name of the file that contains the boosted corpus.")
+                      help='Specify the name of the file that contains the boosted corpus.')
     parser.add_option('-p', '--parallel_workers', dest='parallel_workers', default=1, help='Specify the number of parallel threads', type='int')
     parser.add_option('-w', '--window_size', dest='context_window', default=5, help='Specify the context window size', type='int')
     parser.add_option('-l', '--hidden_layer_size', dest='hidden_layer', default=100, help='Specify the hidden layer size', type='int')
