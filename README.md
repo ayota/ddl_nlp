@@ -1,10 +1,9 @@
 # ddl_nlp: Ontology Assisted NLP. 
 Repo for DDL research lab project.  The codebase takes care of all ingestion, training, and evaluation for ontology 
-assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline AFTER ingestion through evaluation.
+assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline *after* ingestion/corpus cleaning through evaluation.
 There are essentially 2 main components that need to be run to run the test; Ingestion and the Drake Workflow. Ingestion
-is a simple command line wrapper that grabs the data we want to use as our corpus and ontology.  The Drake workflow
-conducts all munging, machine learning, and evaluation activities.  So essentially, once you run the ingestion once you can just
-continue to tweak your ml parameters and re-run the drake workflow to run the entire process (no need to ingest multiple times).
+is a simple command line wrapper that grabs the data we want to use as our corpus and ontology, and performs basic munging to standardize the corpus.  The Drake workflow appends ontologies to the corpus, trains the word2vec model, and performs the evaluation activities.  So essentially, once you run the ingestion you can just
+continue to tweak the number of times the ontologies are appended and the word2vec parameters and re-run the Drake workflow to conduct a new experiment (no need to ingest and clean the corpus multiple times). 
 
 #Usage
 
@@ -162,7 +161,7 @@ You can also run the ontology ingestion module directly as a script; see usage n
 
 To clean the corpus, use the `wrangling/clean_corpus.py` script. This script can clean a single file, or a directory's worth of files into a single, newline delimited text file that cleans up certain types of characters or phrases and splits the data into sentences of a minimum length.
 
-The common use will be to use this script to clean a directory's worth of files. In that case, the cleaned and concatednated file (by defualt `output.txt`) will be located in the same directory the individual files were in.
+The common use will be to use this script to clean a directory's worth of files. In that case, the cleaned and concatednated file (by default `output.txt`) will be located in the same directory the individual files were in.
 
 ##### Details on what is cleaned from the corpus
 
@@ -180,6 +179,10 @@ Full list of stuff that is removed, by default:
 
 
 ## Model Building
+
+### Appending ontologies
+
+**//Cover new file structure and boosting process here. Ignore the mess below.//**
 
 ### To generate data-folds
 
@@ -243,7 +246,7 @@ python fun_3000/word2vec.py -h
 
 
 ### Evaluating a model
-Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Our
+Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Ours
 scores are stored in scores.csv in the base directory.  Every time you run th workflow this csv will be appended to.  There
 is a column that provides the run name in the csv and the data and time.
 
