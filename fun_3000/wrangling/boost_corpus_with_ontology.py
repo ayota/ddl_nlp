@@ -1,6 +1,6 @@
 import io
 import optparse
-from os import path
+from os import path, listdir
 import shutil
 
 from utils import PARENT_DIR, read_source
@@ -24,14 +24,22 @@ def run(run_directory, corpus_filename="output.txt", multiplier=1):
     # copy corpus file data into output file
     shutil.copy(absolute_corpus_filename, output_filename)
 
-    # get our ontology file
-    ontology = read_source(run_directory, source_type='ontology')
-    ontology_text = ontology + ' '
-    ontology_text = ontology_text * multiplier
+    # Get our ontology file.
+    # Step 1: We have an ontology directory and we want to loop over the files inside. 
+    # Step 2: For each open file, we want to add a space and multiply it by the multiplier.
+    # Step 3: Append to the output corpus. 
 
-    with io.open(output_filename, "at") as f:
-        f.write('\n') # maybe for nice formatting?
-        f.write(ontology_text)
+    ontology_path = path.join(PARENT_DIR, 'ontologies', run_directory)
+
+    files = listdir(run_directory)
+    for fn in files:
+        with io.open(fn, 'rt') as ontology:
+            ontology_text = ontology.read() + ' '
+            ontology_text = ontology_text * multiplier
+
+        with io.open(output_filename, "at") as f:
+            f.write('\n') # maybe for nice formatting?
+            f.write(ontology_text)
 
 if __name__ == '__main__':
 

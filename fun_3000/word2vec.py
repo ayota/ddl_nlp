@@ -8,18 +8,6 @@ from os import path, listdir
 
 logging.basicConfig(format='%(asctime)s: %(levelname)s : %(message)s', level=logging.INFO)
 
-class MySentences(object):
-    '''
-    This makes an iterable that streams sentences directly from file for word2vec.
-    '''
-
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-    def __iter__(self):
-        for line in open(path.join(self.file_path)):
-            yield line.split()
-
 def timeit(method):
 
     def timed(*args, **kw):
@@ -49,13 +37,11 @@ def run_model(data_directory, boosted_filename, parallel_workers=4, hidden_layer
     abs_path_to_data_directory = path.join(parent_dir, 'data', data_directory)
     input_file_path = path.join(abs_path_to_data_directory, boosted_filename)
 
-    corpus = MySentences(input_file_path)
+    corpus = gensim.models.word2vec.LineSentence(input_file_path)
     model = gensim.models.Word2Vec(corpus, workers=parallel_workers, size=hidden_layer, window=context_window)
 
-    # Replace / with _ to prevent creation of unecessary directories, because this expects the fold structure
-    filename = data_directory.replace('/', '_') # Elaine doesn't think we need this, because reasons.
-    logging.info(filename)
-    model_path = abs_path_to_data_directory + '/' + filename +'.model'
+    logging.info(data_directory)
+    model_path = abs_path_to_data_directory + '/' + data_directory +'.model'
 
     print model_path
     model.save(model_path)
