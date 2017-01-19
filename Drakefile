@@ -15,23 +15,19 @@ SCORING_OUTPUT_FILE=scores.csv
 ; Don't change this EV..ER
 FUN_3000_DIR=fun_3000
 
-; Set up workflow artifact directory
-workflow/00.setup.complete <- [shell]
-    mkdir -p workflow/
-    touch $OUTPUT
 
 ; Using pre-cleaned data, append ontologies a user-specified number of times, and place in the proper file structure. 
-workflow/01.boost_corpus_with_ontology.complete <- workflow/00.setup.complete [shell]
-    python $[FUN_3000_DIR]/wrangling/boost_corpus_with_ontology.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -m $[MULTIPLIER] && touch $OUTPUT
+%boosted, data/$[INPUT_DATA_DIR]/$[MULTIPLIER]_boost_$[CORPUS_FILENAME] <- data/$[INPUT_DATA_DIR]/$[CORPUS_FILENAME] [shell]
+    python $[FUN_3000_DIR]/wrangling/boost_corpus_with_ontology.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -m $[MULTIPLIER]
 
 ; Run Gensim word2vec on the corpus
-workflow/02.model.complete <- workflow/01.boost_corpus_with_ontology.complete [shell]
-    python $[FUN_3000_DIR]/word2vec.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] -w $[WINDOW_SIZE] && touch $OUTPUT
+%model_built, data/$[INPUT_DATA_DIR]/$[INPUT_DATA_DIR].model <- data/$[INPUT_DATA_DIR]/$[MULTIPLIER]_boost_$[CORPUS_FILENAME] [shell]
+    python $[FUN_3000_DIR]/word2vec.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] -w $[WINDOW_SIZE]
 ; @Laura : how do we reference the output from the previous step of the workflow?? :(
 
 ; Run Evaluation
-workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
-    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER] && touch $OUTPUT
+$[SCORING_OUTPUT_FILE] <- data/$[INPUT_DATA_DIR]/$[INPUT_DATA_DIR].model [shell]
+    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER]
 ; @David is editing this file, so need to come back to this after.
 
 ; Add viz step?
