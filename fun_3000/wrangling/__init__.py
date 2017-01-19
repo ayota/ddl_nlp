@@ -1,1 +1,1 @@
-import generate_folds
+import boost_corpus_with_ontology

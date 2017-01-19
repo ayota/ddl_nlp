@@ -3,14 +3,12 @@
 ; Gensim Configuration
 PARALLEL_THREADS=4
 HIDDEN_LAYER_SIZE=100
-
-; Folds Configuration
-FOLDS=3
-SEED=10
+WINDOW_SIZE=5
 
 ; General Configuration
 MULTIPLIER=10
 INPUT_DATA_DIR=run1
+CORPUS_FILENAME=output.txt
 SEARCH_RESULTS=5
 SCORING_OUTPUT_FILE=scores.csv
 
@@ -22,14 +20,18 @@ workflow/00.setup.complete <- [shell]
     mkdir -p workflow/
     touch $OUTPUT
 
-; Clean data, generate folds, and place in the proper file structure.
-workflow/01.generate_folds.complete <- workflow/00.setup.complete [shell]
-    python $[FUN_3000_DIR]/wrangling/generate_folds.py -d $[INPUT_DATA_DIR] -k $[FOLDS] -o -s $[SEED] -m $[MULTIPLIER] && touch $OUTPUT
+; Using pre-cleaned data, append ontologies a user-specified number of times, and place in the proper file structure. 
+workflow/01.boost_corpus_with_ontology.complete <- workflow/00.setup.complete [shell]
+    python $[FUN_3000_DIR]/wrangling/boost_corpus_with_ontology.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -m $[MULTIPLIER] && touch $OUTPUT
 
-; Run Gensim word2vec on each fold
-workflow/02.model.complete <- workflow/01.generate_folds.complete [shell]
-    python $[FUN_3000_DIR]/word2vec.py -i $[INPUT_DATA_DIR] -o $[INPUT_DATA_DIR] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] && touch $OUTPUT
+; Run Gensim word2vec on the corpus
+workflow/02.model.complete <- workflow/01.boost_corpus_with_ontology.complete [shell]
+    python $[FUN_3000_DIR]/word2vec.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] -w $[WINDOW_SIZE] && touch $OUTPUT
+; @Laura : how do we reference the output from the previous step of the workflow?? :(
 
 ; Run Evaluation
 workflow/03.evaluate.complete <- workflow/02.model.complete [shell]
-    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -f $[FOLDS] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER] && touch $OUTPUT
+    python $[FUN_3000_DIR]/evaluation/similarity_evaluation.py -r $[INPUT_DATA_DIR] -o $[SCORING_OUTPUT_FILE] -m $[MULTIPLIER] && touch $OUTPUT
+; @David is editing this file, so need to come back to this after.
+
+; Add viz step?

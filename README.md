@@ -1,10 +1,9 @@
 # ddl_nlp: Ontology Assisted NLP. 
 Repo for DDL research lab project.  The codebase takes care of all ingestion, training, and evaluation for ontology 
-assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline AFTER ingestion through evaluation.
+assisted word2vec training activities. A Drakefile is used to conduct the entire pipeline *after* ingestion/corpus cleaning through evaluation.
 There are essentially 2 main components that need to be run to run the test; Ingestion and the Drake Workflow. Ingestion
-is a simple command line wrapper that grabs the data we want to use as our corpus and ontology.  The Drake workflow
-conducts all munging, machine learning, and evaluation activities.  So essentially, once you run the ingestion once you can just
-continue to tweak your ml parameters and re-run the drake workflow to run the entire process (no need to ingest multiple times).
+is a simple command line wrapper that grabs the data we want to use as our corpus and ontology, and performs basic munging to standardize the corpus.  The Drake workflow appends ontologies to the corpus, trains the word2vec model, and performs the evaluation activities.  So essentially, once you run the ingestion you can just
+continue to tweak the number of times the ontologies are appended and the word2vec parameters and re-run the Drake workflow to conduct a new experiment (no need to ingest and clean the corpus multiple times). 
 
 #Usage
 
@@ -15,6 +14,7 @@ continue to tweak your ml parameters and re-run the drake workflow to run the en
     - [Medical abstracts](#medical-abstracts)
     - [Medical textbooks](#medical-textbooks)
     - [Ontologies](#ontologies)
+   - [Cleaning Corpus](#cleaning-corpus)
 - [Model Building](#model-building)
     - [To generate data-folds](#to-generate-data-folds)
     - [Cleaning text](#cleaning-text)
@@ -157,7 +157,32 @@ ontology_grab.ingest_and_wrangle_owls(directory)
 
 You can also run the ontology ingestion module directly as a script; see usage notes in the script itself.
 
+#### Cleaning corpus
+
+To clean the corpus, use the `wrangling/clean_corpus.py` script. This script can clean a single file, or a directory's worth of files into a single, newline delimited text file that cleans up certain types of characters or phrases and splits the data into sentences of a minimum length.
+
+The common use will be to use this script to clean a directory's worth of files. In that case, the cleaned and concatednated file (by default `output.txt`) will be located in the same directory the individual files were in.
+
+##### Details on what is cleaned from the corpus
+
+There are several functions called during the generate folds process before and after the sentences are tokenized to remove HTML and Latex code, formatting, headers, and other potentially bothersome elements from the text.
+
+Full list of stuff that is removed, by default:
+
+* Remove all html tags {<-->)
+* Remove all latex ({--} and ${--})
+* Remove headers from wikipedia articles
+* Remove new lines and carriage returns (this messes up the tokenize script)
+* Remove all non-ascii characters (like copyright symbols)
+* Remove extraneous spaces (this also messes up the tokenize script)
+* Remove sentences less than 10 words long (or some length defined in parameter), that don't end with a period, don't start with a capital letter, or start with a number
+
+
 ## Model Building
+
+### Appending ontologies
+
+**//Cover new file structure and boosting process here. Ignore the mess below.//**
 
 ### To generate data-folds
 
@@ -201,21 +226,6 @@ where:
 - `-d` is the data directory for this test run, for example 'run1'
 - `-s` is the random seed
 
-#### Cleaning text
-
-There are several functions called during the generate folds process before and after the sentences are tokenized to remove HTML and Latex code, formatting, headers, and other potentially bothersome elements from the text.
-
-Full list of stuff that is removed:
-
-* Remove all html tags {<-->)
-* Remove all latex ({--} and ${--})
-* Remove headers from wikipedia articles
-* Remove new lines and carriage returns (this messes up the tokenize script)
-* Remove all non-ascii characters (like copyright symbols)
-* Remove extraneous spaces (this also messes up the tokenize script)
-* Remove sentences less than 10 words long (or some length defined in parameter), that don't end with a period, don't start with a capital letter, or start with a number
-
-
 ### To create a model:
 
 ```
@@ -236,7 +246,7 @@ python fun_3000/word2vec.py -h
 
 
 ### Evaluating a model
-Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Our
+Evaluation returns a single score for all fols for an individual run.  It is the average of scores across the folds.  Ours
 scores are stored in scores.csv in the base directory.  Every time you run th workflow this csv will be appended to.  There
 is a column that provides the run name in the csv and the data and time.
 
