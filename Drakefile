@@ -26,7 +26,7 @@ workflow/01.boost_corpus_with_ontology.complete <- workflow/00.setup.complete [s
 
 ; Run Gensim word2vec on the corpus
 workflow/02.model.complete <- workflow/01.boost_corpus_with_ontology.complete [shell]
-    python $[FUN_3000_DIR]/word2vec.py -d $[INPUT_DATA_DIR] -f $[INPUT_DATA_DIR] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] -w $[WINDOW_SIZE] && touch $OUTPUT
+    python $[FUN_3000_DIR]/word2vec.py -d $[INPUT_DATA_DIR] -f $[CORPUS_FILENAME] -p $[PARALLEL_THREADS] -l $[HIDDEN_LAYER_SIZE] -w $[WINDOW_SIZE] && touch $OUTPUT
 ; @Laura : how do we reference the output from the previous step of the workflow?? :(
 
 ; Run Evaluation

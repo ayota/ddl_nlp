@@ -31,14 +31,14 @@ def run(run_directory, corpus_filename="output.txt", multiplier=1):
 
     ontology_path = path.join(PARENT_DIR, 'ontologies', run_directory)
 
-    files = listdir(run_directory)
+    files = listdir(ontology_path)
     for fn in files:
-        with io.open(fn, 'rt') as ontology:
+        with io.open(path.join(ontology_path,fn), 'rt') as ontology:
             ontology_text = ontology.read() + ' '
             ontology_text = ontology_text * multiplier
 
         with io.open(output_filename, "at") as f:
-            f.write('\n') # maybe for nice formatting?
+            f.write(u'\n') # maybe for nice formatting?
             f.write(ontology_text)
 
 if __name__ == '__main__':
