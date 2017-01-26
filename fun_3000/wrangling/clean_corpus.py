@@ -2,6 +2,7 @@ import re
 import optparse
 import utils
 from os import path
+from spacy
 
 
 def clean_corpus(corpus):
@@ -101,10 +102,15 @@ if __name__ == '__main__':
         # probably want to stream this instead l8r
         corpus = utils.read_source(opts.run_directory, source_type="corpus")
 
-    cleaned_corpus = clean_corpus(corpus)
-    tokenized_corpus = tokenize_sentences(cleaned_corpus)
-    cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
+        # what is the syntax for spacy generator??
+        parser = English()
+        # load data somehows
+        for span in data.sents:
+            # do stuff to each sentence that cleans it
+            cleaned_corpus = clean_corpus(corpus)
+            tokenized_corpus = tokenize_sentences(cleaned_corpus)
+            cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
 
-    with open(output_file, "wb") as f:
-        blob = '\n'.join(cleaned_sentences)
-        f.write(blob)
+            with open(output_file, "ab") as f:
+                blob = '\n'.join(cleaned_sentences)
+                f.write(blob)
