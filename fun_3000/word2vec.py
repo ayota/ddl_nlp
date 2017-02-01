@@ -58,4 +58,4 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
 
-    run_model(opts.data_directory, opts.input_filename, opts.parallel_workers, opts.context_window, opts.hidden_layer)
+    run_model(opts.data_directory, opts.input_filename, opts.parallel_workers, opts.hidden_layer, opts.context_window)
