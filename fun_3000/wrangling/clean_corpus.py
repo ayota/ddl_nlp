@@ -2,27 +2,27 @@ import re
 import optparse
 import utils
 from os import path
+import io
 
-
-def clean_corpus(corpus):
+def clean_line(line):
     '''
-    cleans out all non-ascii characters, newlines, carriage returns, wikipedia headers, other fun stuff
-    :param corpus: a bytestream from a text file representing the corpus
-    :type corpus: bytearray, str or mixed strings and bytes
-    :return: cleaned corpus string
+    cleans out all newlines, carriage returns, wikipedia headers, other fun stuff
+    :param line: a string from a text file representing the line
+    :type line: str
+    :return: cleaned line string
     :rtype: str
     '''
-    corpus = corpus.decode(encoding='ascii', errors='ignore')  # force drop all non-ascii characters like copyright symbols
-    corpus = re.sub(r'<.*?>', ' ', corpus)  # html tags
-    corpus = re.sub(r'{.*?}', ' ', corpus)  # anything between brackets, from latex in medical abstracts
-    corpus = re.sub(r'${.*?}', ' ', corpus)  # any line leading content between brackets, from latex in medical abstracts
-    corpus = re.sub(r'={2,}.*?={2,}', ' ', corpus)  # wikipedia headers e.g. ===asdfkjlas===
-    corpus = re.sub(r'%', ' percent ', corpus) # convert % symbol to its English word percent
-    corpus = re.sub(r'\\x[a-zA-Z0-9]{2,}', ' ', corpus)  # escaped bytes in the decoded information
-    corpus = re.sub(r'(\b([A-Za-z0-9]){1,1} ){2,}', ' ', corpus)  # copyright statements written like this: 2 0 1 6 E l s e i v e r L t d .
-    corpus = re.sub(r'\s+', ' ', corpus)  # condense extra whitespace, tabs, newlines, other whitespace characters
-    corpus = corpus.strip()
-    return corpus
+    #line = line.decode(encoding='ascii', errors='ignore')  # force drop all non-ascii characters like copyright symbols
+    line = re.sub(r'<.*?>', ' ', line)  # html tags
+    line = re.sub(r'{.*?}', ' ', line)  # anything between brackets, from latex in medical abstracts
+    line = re.sub(r'${.*?}', ' ', line)  # any line leading content between brackets, from latex in medical abstracts
+    line = re.sub(r'={2,}.*?={2,}', ' ', line)  # wikipedia headers e.g. ===asdfkjlas===
+    line = re.sub(r'%', ' percent ', line) # convert % symbol to its English word percent
+    line = re.sub(r'\\x[a-zA-Z0-9]{2,}', ' ', line)  # escaped bytes in the decoded information
+    line = re.sub(r'(\b([A-Za-z0-9]){1,1} ){2,}', ' ', line)  # copyright statements written like this: 2 0 1 6 E l s e i v e r L t d .
+    line = re.sub(r'\s+', ' ', line)  # condense extra whitespace, tabs, newlines, other whitespace characters
+    line = line.strip()
+    return line
 
 
 def bad_sentence(sentence, sent_len):
@@ -82,29 +82,24 @@ def tokenize_sentences(corpus=None):
 
 if __name__ == '__main__':
 
-    parser = optparse.OptionParser()
-    parser.add_option('-f', '--file', dest='input_file', default=None, help='Specify source data file')
+    usage = "usage: %prog [options] run_directory"
+    parser = optparse.OptionParser(usage=usage)
     parser.add_option('-o', '--output_file', dest='output_file', default="output.txt", help="Specify output data file.")
-    parser.add_option('-d', '--run_directory', dest="run_directory", default=None, help="Specify the directory name where all ingested corpus files reside.")
     parser.add_option('-s', '--min_sentence_length', dest='sentence_length', default=10, help="Specify minimum sentence word length.")
     (opts, args) = parser.parse_args()
 
-    if opts.input_file:
-        with open(opts.input_file, "rb") as f:
-            corpus = f.read()
-        # TODO: is this the default functionality we want for single files?
-        output_file = opts.output_file
-    if opts.run_directory:
-        # specify the output file
-        output_file = path.join(utils.PARENT_DIR, 'data', opts.run_directory, opts.output_file)
-        # TODO: pulls entire directory of corpus data into a single string
-        # probably want to stream this instead l8r
-        corpus = utils.read_source(opts.run_directory, source_type="corpus")
 
-    cleaned_corpus = clean_corpus(corpus)
-    tokenized_corpus = tokenize_sentences(cleaned_corpus)
-    cleaned_sentences = validate_sentences(tokenized_corpus, opts.sentence_length)
+    # specify the output file
+    output_file = path.join(utils.PARENT_DIR, 'data', args[0], opts.output_file)
+    # TODO: pulls entire directory of corpus data into a single string
+    # probably want to stream this instead l8r
+    corpus = utils.read_source(path.join(utils.PARENT_DIR, 'data', opts.run_directory))
 
-    with open(output_file, "wb") as f:
-        blob = '\n'.join(cleaned_sentences)
-        f.write(blob)
+    with io.open(output_file, "wb") as f:
+
+        for line in corpus:
+            cleaned_line = clean_line(line)
+            tokenized_line = tokenize_sentences(cleaned_line)
+            validated_line = validate_sentences(tokenized_line, opts.sentence_length)
+            f.write(validated_line)
+
